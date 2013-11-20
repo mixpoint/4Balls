@@ -31,14 +31,19 @@ namespace _4Balls
         }
 
         States currentState;
+        List<BoxObject> boxen = new List<BoxObject>();
+
+        BoxObject ground;
         BoxObject box;
-        SphereObject sphere;
+        BoxObject box2;
+        int i;
+
+        BoxObject fallingBox;
 
         public override void Initialize()
         {
             base.Initialize();
-            Scene.Camera = new CameraObject(new Vector3(0, 15, 35),
-            new Vector3(0, 0, 0));
+            Scene.Camera = new CameraObject(new Vector3(30, 30, 100), new Vector3(0, 20, 0));
             Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -9.81f, 0);
             currentState = States.Start;
         }
@@ -48,11 +53,19 @@ namespace _4Balls
             switch (currentState)
             {
                 case States.Start:
-                    box = new BoxObject(new Vector3(0, 0, 0), new Vector3(10f, 1f, 10f), 0f);
-                    sphere = new SphereObject(new Vector3(0, 10, 0), 2f, 10, 10, 0f);
-                    sphere.Collided += new EventHandler<CollisionArgs>(SphereCollidedHandler);
+
+                    fallingBox = new BoxObject(new Vector3(5, 10, 5), new Vector3(9.9f, 9.9f, 9.9f), 0f);
+
+                    Scene.Add(fallingBox);
+                    //boxen.Add(newBox);
+
+                    ground = new BoxObject(new Vector3(0, 0, 0), new Vector3(50f, 1f, 50f), 0f);
+                    box = new BoxObject(new Vector3(5, 10, 5), new Vector3(9.9f, 9.9f, 9.9f), 0f);
+                    box.Collided += new EventHandler<CollisionArgs>(BoxCollidedHandler);
+
+                    Scene.Add(ground);
                     Scene.Add(box);
-                    Scene.Add(sphere);
+                    Scene.Add(box2);
 
                     currentState = States.WaitForCollision;
                     break;
@@ -73,17 +86,8 @@ namespace _4Balls
 
         }
 
-        void SphereCollidedHandler(object sender, CollisionArgs e)
+        void BoxCollidedHandler(object sender, CollisionArgs e)
         {
-            Vector3 position = sphere.Position + new Vector3(0, 3, 0);
-            Text3D text = new Text3D(position,
-            Text3D.Type.Fill,
-            "Hit!",
-            Color.Red,
-            "");
-            text.LinearVelocity = Vector3.Up;
-            text.Lifetime = new TimeSpan(0, 0, 2);
-            Scene.Add(text);
             currentState = States.Collided;
         }
 
@@ -120,8 +124,9 @@ namespace _4Balls
                 case States.WaitForCollision:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
-                        sphere.Mass = 1f;
-                        sphere.Physics.Material.Bounciness = 1.8f;
+                        box.Mass = 1f;
+                        box2.Mass = 100f;
+                        box.Physics.Material.Bounciness = 1.8f;
                     }
                     break;
                 case States.Collided:
