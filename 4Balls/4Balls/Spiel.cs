@@ -10,8 +10,7 @@ using Microsoft.Kinect;
 
 namespace _4Balls
 {
-    class 
-        Spiel : GameplayScreen
+    class Spiel : GameplayScreen
     {
         SphereObject sphere;
         public override void Initialize()

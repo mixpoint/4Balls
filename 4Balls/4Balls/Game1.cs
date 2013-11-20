@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using NOVA;
 using NOVA.ScreenManagement.BaseScreens;
-//asdokjoi
+
 namespace _4Balls
 {
     /// <summary>
