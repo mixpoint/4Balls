@@ -15,19 +15,29 @@ namespace _4Balls
 {
     public class KinectScreen : GameplayScreen
     {
-        float diff;
-        Vector3 worldPosHand = Vector3.Zero;
-        Vector3 worldPosshoulder = Vector3.Zero;
+        float[] diffx = new float[2];
+        float[] diffy = new float[2];
+        float[] diffz = new float[2];
+        float testx = 0.0f;
+        float testz = 0.0f; 
+
+        int twohand = 0;
+        int [] handalt = new int[2];
+        Vector3 worldPosHandr = Vector3.Zero;
+        Vector3 worldPosHandl = Vector3.Zero;
+        Vector3 worldPosshoulderl = Vector3.Zero;
+        Vector3 worldPosshoulderr = Vector3.Zero;
         BoxObject box;
         public override void Initialize()
         {
             base.Initialize();
-            Scene.Camera = new CameraObject(new Vector3(0, 0, 10), Vector3.Zero);
+            Scene.Camera = new CameraObject(new Vector3(0, 0, 0), Vector3.Zero);
             box = new BoxObject(Vector3.Zero,Vector3.One,1f);
             Scene.Add(box);
             Scene.InitKinect();
            // Scene.Kinect.ShowCameraImage = Kinect.KinectCameraImage.RGB;
         }
+
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
 
@@ -38,37 +48,134 @@ namespace _4Balls
                 {
                     if (skeleton.TrackingState == SkeletonTrackingState.Tracked && skeleton.Joints.Count != 0 && skeleton.Joints[JointType.HandRight].TrackingState == JointTrackingState.Tracked)
                     {
-                        worldPosHand = skeleton.Joints[JointType.HandRight].WorldPosition;
-
-                    } 
+                        worldPosHandr = skeleton.Joints[JointType.HandRight].WorldPosition;
+                    }
+                    if (skeleton.TrackingState == SkeletonTrackingState.Tracked && skeleton.Joints.Count != 0 && skeleton.Joints[JointType.HandLeft].TrackingState == JointTrackingState.Tracked)
+                    {
+                        worldPosHandl = skeleton.Joints[JointType.HandLeft].WorldPosition;
+                    }  
                     if (skeleton.TrackingState == SkeletonTrackingState.Tracked && skeleton.Joints.Count != 0 && skeleton.Joints[JointType.ShoulderRight].TrackingState == JointTrackingState.Tracked)
                     {
-                        worldPosshoulder = skeleton.Joints[JointType.ShoulderRight].WorldPosition;
-
+                        worldPosshoulderr = skeleton.Joints[JointType.ShoulderRight].WorldPosition;
                     }
+                    if (skeleton.TrackingState == SkeletonTrackingState.Tracked && skeleton.Joints.Count != 0 && skeleton.Joints[JointType.ShoulderLeft].TrackingState == JointTrackingState.Tracked)
+                    {
+                        worldPosshoulderl = skeleton.Joints[JointType.ShoulderLeft].WorldPosition;
+                    }
+                  
                 }
             }
-            diff = worldPosHand.X - worldPosshoulder.X;
 
-            if (diff > 0.1f)
+
+            diffx[0] = worldPosHandr.X - worldPosshoulderr.X;
+            diffx[1] = worldPosshoulderl.X - worldPosHandl.X;
+
+            diffy[0] = worldPosHandr.Y - worldPosshoulderr.Y;
+            diffy[1] = worldPosshoulderl.Y - worldPosHandl.Y;
+
+            diffz[0] = worldPosshoulderr.Z - worldPosHandr.Z;
+            diffz[1] = worldPosshoulderl.Z - worldPosHandl.Z;
+
+            // Check right hand
+            if (checkHand(diffx[0], diffz[0], 0  /*left*/))
             {
-                box.Position = new Vector3(2.0f, 0f, 0f);
+                testx = testx + 0.1f;
             }
-            if (diff < 0.1f)
+            if (checkHand(diffx[1], diffz[1], 1  /*right*/))
             {
-                box.Position = new Vector3(-2.0f, 0f, 0f);
+                testx = testx - 0.1f;
             }
-
-
-            UI2DRenderer.WriteText(Vector2.Zero, diff.ToString(), Color.Red,null, Vector2.One,UI2DRenderer.HorizontalAlignment.Center,UI2DRenderer.VerticalAlignment.Bottom);
+            testz = testz + checkdepth(diffz[0]);
             
-            
+
+           
+            box.Position = new Vector3(testx, testz, 0f);
+
+            /*
+            if (diffx[0] > 0.4f ^ diffx[1] > 0.4f)
+            {
+                if (diffx[0] > 0.4f && i == 0)
+                {
+                    i = 1;
+                    test = test + 0.1f;
+                    box.Position = new Vector3(test, 0f, 0f);
+                }
+
+                if (diffx[1] > 0.4f && j == 0)
+                {
+                    j = 1;
+                    test = test - 0.1f;
+                    box.Position = new Vector3(test, 0f, 0f);
+                }
+            }
+            else 
+            {
+                box.Position = new Vector3(test, 0f, 0f);
+            }
+            if (diffx[0] < 0.4f && i == 1)
+            {
+                i = 0;
+            }
+            if (diffx[1] < 0.4f && j == 1)
+            {
+                j = 0;
+            }
+             */
+
+            UI2DRenderer.WriteText(Vector2.Zero, diffz[0].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+            UI2DRenderer.WriteText(Vector2.Zero, diffz[1].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Top);
+      //      UI2DRenderer.WriteText(Vector2.Zero, i.ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Center);
 
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
-             
 
+        bool checkHand(float x,float z,int hand)
+        {
+           
+            if (x > 0.4f && handalt[hand] == 0)
+            {
+                handalt[hand] = 1;
+                return true;
+            }
+            else if (x < 0.4f)
+            {
+                handalt[hand] = 0;
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+        float checkdepth(float z) 
+        {
+            if (z > 0.3f && twohand == 1) 
+            {
+                twohand = 2;
+                return (+0.5f);
+            }
+            else if (z < 0.1f && twohand == 1)
+            {
+                twohand = 0;
+                return (-0.5f);
+            }
+            else if (z<=0.3f && z>=0.1f)
+            {
+                twohand = 1;
+                return (0f);
+            }
+            else{
+                return (0f);
+            }    
+        }
+        float rotate(float y, float x) 
+        { 
+        
+            
+            return(1.0f);
+        }
 
 
     }
