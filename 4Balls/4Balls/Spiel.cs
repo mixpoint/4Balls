@@ -74,7 +74,7 @@ namespace _4Balls
         {
             int matches = 0;
 
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((x + i >= 0) && (x + i <= s))
                 {
@@ -95,7 +95,7 @@ namespace _4Balls
             }
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((y + i >= 0) && (y + i <= s))
                 {
@@ -117,7 +117,7 @@ namespace _4Balls
 
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((z + i >= 0) && (z + i <= s))
                 {
@@ -138,7 +138,7 @@ namespace _4Balls
             }
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s))
                 {
@@ -160,7 +160,7 @@ namespace _4Balls
 
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0))
                 {
@@ -181,7 +181,7 @@ namespace _4Balls
             }
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((z + i >= 0) && (z + i <= s) && (y + i >= 0) && (y + i <= s))
                 {
@@ -203,7 +203,7 @@ namespace _4Balls
 
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((z + i >= 0) && (z + i <= s) && (y - i <= s) && (y - i >= 0))
                 {
@@ -224,7 +224,7 @@ namespace _4Balls
             }
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s) && (z + i >= 0) && (z + i <= s))
                 {
@@ -246,7 +246,7 @@ namespace _4Balls
 
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s) && (z - i <= s) && (z - i >= 0))
                 {
@@ -267,7 +267,7 @@ namespace _4Balls
             }
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0) && (z + i >= 0) && (z + i <= s))
                 {
@@ -288,7 +288,7 @@ namespace _4Balls
             }
 
             matches = 0;
-            for (int i = -3; i <= s; i++)
+            for (int i = -3; i <= 3; i++)
             {
                 if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0) && (z - i <= s) && (z - i >= 0))
                 {
