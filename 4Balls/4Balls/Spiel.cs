@@ -15,6 +15,7 @@ using BEPUphysics.Collidables;
 using BEPUphysics.Collidables.Events;
 using BEPUphysics.Collidables.MobileCollidables;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
+using NOVA.Graphics;
 
 
 // Master
@@ -27,7 +28,8 @@ namespace _4Balls
             Start,
             Boxeinfuegen,
             Bewegen,
-            Warten,
+            Wait,
+            Gewinn,
             End
         }
 
@@ -39,8 +41,7 @@ namespace _4Balls
         int x;
         int y;
         int z;
-        bool[,,,] pos1 = new bool[3,3,3,2];
-        bool[,,,] pos2 = new bool[3,3,3,2];
+        bool[,,,] pos = new bool[4,4,4,2];
         BoxObject fallingBox;
         EventHandler<CollisionArgs> collidedHandler;
 
@@ -53,6 +54,8 @@ namespace _4Balls
             currentState = States.Start;
 
             collidedHandler = new EventHandler<CollisionArgs>(BoxCollidedHandler);
+
+            player = 0;
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
@@ -71,9 +74,24 @@ namespace _4Balls
                     x = 5;
                     y = 50;
                     z = 5;
-                    fallingBox = new BoxObject(new Vector3(x, y, z), new Vector3(9.7f, 9.7f, 9.7f), 10f);
+                    fallingBox = new BoxObject(new Vector3(x, y, z), new Vector3(9f, 9f, 9f), 10f);
                     fallingBox.Physics.IsAffectedByGravity = false;
-                    float speed = fallingBox.Physics.LinearVelocity.Length();
+                    
+                    RenderMaterial FallingBoxRenMat = new RenderMaterial();
+
+                    switch (player)
+                    {
+                        case 0:
+                            FallingBoxRenMat.Diffuse = Color.Red.ToVector4();
+                            break;
+
+                        case 1:
+                            FallingBoxRenMat.Diffuse = Color.Green.ToVector4();
+                            break;
+                    }
+
+                    fallingBox.RenderMaterial = FallingBoxRenMat;
+
                     Console.WriteLine("Box eingefügt");
                     Scene.Add(fallingBox);
 //                  boxen.Add(fallingBox);
@@ -87,7 +105,16 @@ namespace _4Balls
                     UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
                     break;
 
-                case States.Warten:
+                case States.Wait:
+                    if (fallingBox.Physics.LinearVelocity.Length() <= 0f)
+                    {
+                        fallingBox.Collided += collidedHandler;
+                        fallingBox.MoveToPosition(new Vector3(x, (y - 0.1f), z));
+                        fallingBox.Physics.IsAffectedByGravity = true;
+                    }
+                    break;
+
+                case States.Gewinn:
 
                     break;
 
@@ -99,11 +126,316 @@ namespace _4Balls
 
         }
 
+        int umrechner(int x)
+        {
+            switch (x)
+            {
+                case -15:
+                    return 0;
+
+                case -5:
+                    return 1;
+
+                case 5:
+                    return 2;
+
+                case 15:
+                    return 3;
+
+                default:
+                    Console.WriteLine("Fehler");
+                    return 5;
+
+            }
+
+        }
+
         void BoxCollidedHandler(object sender, CollisionArgs e)
         {
             Console.WriteLine(" Collision ");
-            currentState = States.Boxeinfuegen;
+
+
             fallingBox.Collided -= collidedHandler;
+            int a;
+
+            x = umrechner(x);
+            z = umrechner(z);
+
+            for (int i = 0; i < 4; i++)
+            {
+                if ((pos[x, i, z, 0] == false) && (pos[x, i, z, 1] == false))
+                {
+                    pos[x, i, z, player] = true;
+                    y = i;
+                    break;
+                }
+            }
+
+            int matches = 0;
+
+
+            for (int i = -3; i < 4; i++)
+            {
+                if ((x + i >= 0) && (x + i <= 3))
+                {
+                    if (pos[(x+i), y, z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((y + i >= 0) && (y + i <= 3))
+                {
+                    if (pos[x, (y + i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((z + i >= 0) && (z + i <= 3))
+                {
+                    if (pos[x, y, (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((x + i >= 0) && (x + i <= 3) && (y + i >= 0) && (y + i <= 3))
+                {
+                    if (pos[(x + i), (y + i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((x + i >= 0) && (x + i <= 3) && (y - i <= 3) && (y - i >= 0))
+                {
+                    if (pos[(x + i), (y - i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((z + i >= 0) && (z + i <= 3) && (y + i >= 0) && (y + i <= 3))
+                {
+                    if (pos[x, (y + i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((z + i >= 0) && (z + i <= 3) && (y - i <= 3) && (y - i >= 0))
+                {
+                    if (pos[x, (y - i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((x + i >= 0) && (x + i <= 3) && (y + i >= 0) && (y + i <= 3) && (z + i >= 0) && (z + i <= 3))
+                {
+                    if (pos[(x + i), (y + i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((x + i >= 0) && (x + i <= 3) && (y + i >= 0) && (y + i <= 3) && (z - i <= 3) && (z - i >= 0))
+                {
+                    if (pos[(x + i), (y + i), (z - i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((x + i >= 0) && (x + i <= 3) && (y - i <= 3) && (y - i >= 0) && (z + i >= 0) && (z + i <= 3))
+                {
+                    if (pos[(x + i), (y - i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i < 4; i++)
+            {
+                if ((x + i >= 0) && (x + i <= 3) && (y - i <= 3) && (y - i >= 0) && (z - i <= 3) && (z - i >= 0))
+                {
+                    if (pos[(x + i), (y - i), (z - i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            currentState = States.Gewinn;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+
+            if (currentState == States.Wait)
+            {
+                switch (player)
+                {
+                    case 0:
+                        player = 1;
+                        break;
+
+                    case 1:
+                        player = 0;
+                        break;
+                }
+                currentState = States.Boxeinfuegen;
+            }
+
         }
 
         public override void Draw(GameTime gameTime)
@@ -119,8 +451,10 @@ namespace _4Balls
                     break;
                 case States.Bewegen:
                     break;
-                case States.Warten:
-                    text = " warten ";
+                case States.Wait:
+                    break;
+                case States.Gewinn:
+                    text = " Gewonnen! ";
                     color = Color.Yellow;
                     break;
                 case States.End:
@@ -150,34 +484,48 @@ namespace _4Balls
                 case States.Bewegen:
                     if (input.WasKeyPressed(Keys.Left, PlayerIndex.One))
                     {
-                        x = x - 10;
-                        fallingBox.MoveToPosition(new Vector3(x, y, z));
-                        //Console.WriteLine(String.Format("{0} {1}", fallingBox.Position.X, fallingBox.Position.Y));
+                        if (x > -15)
+                        {
+                            x = x - 10;
+                            fallingBox.MoveToPosition(new Vector3(x, y, z));
+                            //Console.WriteLine(String.Format("{0} {1}", fallingBox.Position.X, fallingBox.Position.Y));
+                        }
                     }
                     if (input.WasKeyPressed(Keys.Right, PlayerIndex.One))
                     {
-                        x = x + 10;
-                        fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        if (x < 15)
+                        {
+                            x = x + 10;
+                            fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        }
                     }
                     if (input.WasKeyPressed(Keys.Up, PlayerIndex.One))
                     {
-                        z = z - 10;
-                        fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        if (z > -15)
+                        {
+                            z = z - 10;
+                            fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        }
                     }
                     if (input.WasKeyPressed(Keys.Down, PlayerIndex.One))
                     {
-                        z = z + 10;
-                        fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        if (z < 15)
+                        {
+                            z = z + 10;
+                            fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        }
                     }
-                    if (input.WasKeyPressed(Keys.Space, PlayerIndex.One) && fallingBox.Physics.LinearVelocity.Length() <= 0.01f)
+                    if (input.WasKeyPressed(Keys.Space, PlayerIndex.One) && (pos[umrechner(x), 3, umrechner(z), 0] == false) && (pos[umrechner(x), 3, umrechner(z), 1] == false))
                     {
-                            fallingBox.Collided += collidedHandler;
-                            fallingBox.Physics.IsAffectedByGravity = true;
+                        Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
+                        currentState = States.Wait;
                     }
                     break;
 
+                case States.Wait:
+                    break;
 
-                case States.Warten:
+                case States.Gewinn:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
  //                       Scene.PausePhysics = false;
