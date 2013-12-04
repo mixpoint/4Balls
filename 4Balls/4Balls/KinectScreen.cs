@@ -19,8 +19,9 @@ namespace _4Balls
         float[] diffy = new float[2];
         float[] diffz = new float[2];
         float testx = 0.0f;
-        float testz = 0.0f; 
+        float testz = 0.0f;
 
+        double rot = 0;
         int twohand = 0;
         int [] handalt = new int[2];
         Vector3 worldPosHandr = Vector3.Zero;
@@ -28,19 +29,23 @@ namespace _4Balls
         Vector3 worldPosshoulderl = Vector3.Zero;
         Vector3 worldPosshoulderr = Vector3.Zero;
         BoxObject box;
+        double[] cam = new double[3]{0,5,5};
+
+
         public override void Initialize()
         {
             base.Initialize();
-            Scene.Camera = new CameraObject(new Vector3(0, 0, 0), Vector3.Zero);
+            Scene.Camera = new CameraObject(new Vector3((float)(cam[0]), (float)(cam[1]), (float)(cam[2])), Vector3.Zero);
             box = new BoxObject(Vector3.Zero,Vector3.One,1f);
+            box = new BoxObject(new Vector3(1,0,1), Vector3.One, 1f);
             Scene.Add(box);
             Scene.InitKinect();
-           // Scene.Kinect.ShowCameraImage = Kinect.KinectCameraImage.RGB;
+            //Scene.Kinect.ShowCameraImage = Kinect.KinectCameraImage.RGB;
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-
+            
             if (Scene.Kinect.SkeletonDataReady)
             {
                 List<NOVA.Components.Kinect.Skeleton> skeletons = new List<NOVA.Components.Kinect.Skeleton>(Scene.Kinect.Skeletons);
@@ -66,18 +71,18 @@ namespace _4Balls
                 }
             }
 
-
+            
             diffx[0] = worldPosHandr.X - worldPosshoulderr.X;
             diffx[1] = worldPosshoulderl.X - worldPosHandl.X;
 
             diffy[0] = worldPosHandr.Y - worldPosshoulderr.Y;
             diffy[1] = worldPosshoulderl.Y - worldPosHandl.Y;
-
+            
             diffz[0] = worldPosshoulderr.Z - worldPosHandr.Z;
             diffz[1] = worldPosshoulderl.Z - worldPosHandl.Z;
 
             // Check right hand
-            if (checkHand(diffx[0], diffz[0], 0  /*left*/))
+           if (checkHand(diffx[0], diffz[0], 0  /*left*/))
             {
                 testx = testx + 0.1f;
             }
@@ -86,10 +91,18 @@ namespace _4Balls
                 testx = testx - 0.1f;
             }
             testz = testz + checkdepth(diffz[0]);
-            
 
-           
-            box.Position = new Vector3(testx, testz, 0f);
+            /* if (checkrotate(0)) {
+               
+             }
+             if (checkrotate(1)) {
+                
+             }
+                */
+
+            box.Position = new Vector3(testx, 0f, testz);
+            //Scene.Camera = new CameraObject(new Vector3((float)(cam[0]), (float)(cam[1]), (float)(cam[2])), Vector3.Zero);
+            
 
             /*
             if (diffx[0] > 0.4f ^ diffx[1] > 0.4f)
@@ -121,15 +134,16 @@ namespace _4Balls
                 j = 0;
             }
              */
-
-            UI2DRenderer.WriteText(Vector2.Zero, diffz[0].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+            //UI2DRenderer.WriteText(Vector2.Zero, cam[0].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+            //UI2DRenderer.WriteText(Vector2.Zero, cam[2].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Top);
+           /* UI2DRenderer.WriteText(Vector2.Zero, diffz[0].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
             UI2DRenderer.WriteText(Vector2.Zero, diffz[1].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Top);
       //      UI2DRenderer.WriteText(Vector2.Zero, i.ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Center);
-
+            */
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
-
+        
         bool checkHand(float x,float z,int hand)
         {
            
@@ -147,7 +161,7 @@ namespace _4Balls
             {
                 return false;
             }
-
+        
         }
         float checkdepth(float z) 
         {
@@ -170,13 +184,14 @@ namespace _4Balls
                 return (0f);
             }    
         }
-        float rotate(float y, float x) 
-        { 
         
+        bool checkrotate(int hand)
+        {   
             
-            return(1.0f);
+
+            return(true);
         }
-
-
+        
+        
     }
 }
