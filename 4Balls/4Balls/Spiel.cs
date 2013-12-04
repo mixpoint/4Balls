@@ -45,6 +45,274 @@ namespace _4Balls
         BoxObject fallingBox;
         EventHandler<CollisionArgs> collidedHandler;
 
+        int umrechner(int x)
+        {
+            switch (x)
+            {
+                case -15:
+                    return 0;
+
+                case -5:
+                    return 1;
+
+                case 5:
+                    return 2;
+
+                case 15:
+                    return 3;
+
+                default:
+                    Console.WriteLine("Fehler");
+                    return 5;
+
+            }
+
+        }
+
+
+        bool win(int s)
+        {
+            int matches = 0;
+
+            for (int i = -3; i <= s; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s))
+                {
+                    if (pos[(x + i), y, z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((y + i >= 0) && (y + i <= s))
+                {
+                    if (pos[x, (y + i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((z + i >= 0) && (z + i <= s))
+                {
+                    if (pos[x, y, (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s))
+                {
+                    if (pos[(x + i), (y + i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0))
+                {
+                    if (pos[(x + i), (y - i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((z + i >= 0) && (z + i <= s) && (y + i >= 0) && (y + i <= s))
+                {
+                    if (pos[x, (y + i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((z + i >= 0) && (z + i <= s) && (y - i <= s) && (y - i >= 0))
+                {
+                    if (pos[x, (y - i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s) && (z + i >= 0) && (z + i <= s))
+                {
+                    if (pos[(x + i), (y + i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s) && (z - i <= s) && (z - i >= 0))
+                {
+                    if (pos[(x + i), (y + i), (z - i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0) && (z + i >= 0) && (z + i <= s))
+                {
+                    if (pos[(x + i), (y - i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= s; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0) && (z - i <= s) && (z - i >= 0))
+                {
+                    if (pos[(x + i), (y - i), (z - i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            return false;
+
+        }
+
+
         public override void Initialize()
         {
             base.Initialize();
@@ -126,29 +394,7 @@ namespace _4Balls
 
         }
 
-        int umrechner(int x)
-        {
-            switch (x)
-            {
-                case -15:
-                    return 0;
 
-                case -5:
-                    return 1;
-
-                case 5:
-                    return 2;
-
-                case 15:
-                    return 3;
-
-                default:
-                    Console.WriteLine("Fehler");
-                    return 5;
-
-            }
-
-        }
 
         void BoxCollidedHandler(object sender, CollisionArgs e)
         {
@@ -171,257 +417,15 @@ namespace _4Balls
                 }
             }
 
-            int matches = 0;
 
 
-            for (int i = -3; i < 4; i++)
+
+
+            if (win(3) == true)
             {
-                if ((x + i >= 0) && (x + i <= 3))
-                {
-                    if (pos[(x+i), y, z, player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
+                currentState = States.Gewinn;
             }
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((y + i >= 0) && (y + i <= 3))
-                {
-                    if (pos[x, (y + i), z, player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((z + i >= 0) && (z + i <= 3))
-                {
-                    if (pos[x, y, (z + i), player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((x + i >= 0) && (x + i <= 3) && (y + i >= 0) && (y + i <= 3))
-                {
-                    if (pos[(x + i), (y + i), z, player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((x + i >= 0) && (x + i <= 3) && (y - i <= 3) && (y - i >= 0))
-                {
-                    if (pos[(x + i), (y - i), z, player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((z + i >= 0) && (z + i <= 3) && (y + i >= 0) && (y + i <= 3))
-                {
-                    if (pos[x, (y + i), (z + i), player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((z + i >= 0) && (z + i <= 3) && (y - i <= 3) && (y - i >= 0))
-                {
-                    if (pos[x, (y - i), (z + i), player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((x + i >= 0) && (x + i <= 3) && (y + i >= 0) && (y + i <= 3) && (z + i >= 0) && (z + i <= 3))
-                {
-                    if (pos[(x + i), (y + i), (z + i), player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((x + i >= 0) && (x + i <= 3) && (y + i >= 0) && (y + i <= 3) && (z - i <= 3) && (z - i >= 0))
-                {
-                    if (pos[(x + i), (y + i), (z - i), player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((x + i >= 0) && (x + i <= 3) && (y - i <= 3) && (y - i >= 0) && (z + i >= 0) && (z + i <= 3))
-                {
-                    if (pos[(x + i), (y - i), (z + i), player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-            matches = 0;
-            for (int i = -3; i < 4; i++)
-            {
-                if ((x + i >= 0) && (x + i <= 3) && (y - i <= 3) && (y - i >= 0) && (z - i <= 3) && (z - i >= 0))
-                {
-                    if (pos[(x + i), (y - i), (z - i), player] == true)
-                    {
-                        matches++;
-                        if (matches == 4)
-                        {
-                            currentState = States.Gewinn;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        matches = 0;
-                    }
-
-                }
-            }
-
-
-
-            if (currentState == States.Wait)
+            else
             {
                 switch (player)
                 {
