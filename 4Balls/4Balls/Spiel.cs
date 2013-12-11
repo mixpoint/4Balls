@@ -460,6 +460,7 @@ namespace _4Balls
                             if (x < 15)
                             {
                                 x = x + 10;
+                               
                             }
                         }
                         if (checkHand(diffx[1], diffz[1], 1, diffy[1]  /*right*/))
@@ -467,6 +468,7 @@ namespace _4Balls
                             if (x > -15)
                             {
                                 x = x - 10;
+
                             }
                         }
 
@@ -480,9 +482,9 @@ namespace _4Balls
 
                         Matrix vm = Scene.Camera.ViewMatrix;
                         Matrix vmi = Matrix.Invert(vm);
-                        
 
-                       fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        markerupate();
+                        fallingBox.MoveToPosition(new Vector3(x, y, z));
                     }
 
                                     
@@ -567,7 +569,7 @@ namespace _4Balls
 
         void checkfallingbox(float rechtehand, float linkehand)
         {
-            if (rechtehand < -0.2 && linkehand < -0.2)
+            if ((rechtehand < -0.2 && linkehand < -0.2) && (pos[umrechner(x), 3, umrechner(z), 0] == false) && (pos[umrechner(x), 3, umrechner(z), 1] == false))
             {
                 currentState = States.Wait;
             }
@@ -580,10 +582,6 @@ namespace _4Balls
         {
 
 
-
-            UI2DRenderer.WriteText(Vector2.Zero, rechtehand1.ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Top);
-            UI2DRenderer.WriteText(Vector2.Zero, linkehand1.ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
-            
    
             if ((linkehand1 < -0.2 && rechtehand1 > 0.2) && sethight == 0)
             {
