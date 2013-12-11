@@ -43,6 +43,8 @@ namespace _4Balls
         int z;
         bool[,,,] pos = new bool[4,4,4,2];
         BoxObject fallingBox;
+        BoxObject marker;
+        RenderMaterial MarkerRenMat = new RenderMaterial();
         EventHandler<CollisionArgs> collidedHandler;
 
 
@@ -313,6 +315,22 @@ namespace _4Balls
 
         }
 
+        void markerupate()
+        {
+            
+            for (int i = 0; i < 4; i++)
+            {
+                Scene.Remove(marker);
+                marker = null;
+                if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
+                {
+                    marker = new BoxObject(new Vector3(x, (i * 9 + 0.6f), z), new Vector3(9f, 0.1f, 9f), 40f);
+                    marker.RenderMaterial = MarkerRenMat;
+                    Scene.Add(marker);
+                    break;
+                }
+            }
+        }
 
         public override void Initialize()
         {
@@ -336,7 +354,20 @@ namespace _4Balls
                     
                     ground = new BoxObject(new Vector3(0, 0, 0), new Vector3(50f, 1f, 50f), 0f);
                     ground.RenderMaterial.Diffuse = new Microsoft.Xna.Framework.Vector4(1, 1, 1, 1);
+                    ground.PhysicsMaterial.Bounciness = 0f;
                     Scene.Add(ground);
+
+                    for (int i = 0; i < 4; i++)
+                    {
+                        for (int j = 0; j < 4; j++)
+                        {
+                            ground = new BoxObject(new Vector3(-15 + i * 10, 0.6f, -15 + j * 10), new Vector3(9f, 0.1f, 9f), 10f);
+                            ground.PhysicsMaterial.Bounciness = 0f;
+                            ground.RenderMaterial.Diffuse = new Microsoft.Xna.Framework.Vector4(1, 1, 1, 1);
+                            Scene.Add(ground);
+                        }
+                    }
+
                     currentState = States.Boxeinfuegen;
                     break;
 
@@ -346,10 +377,11 @@ namespace _4Balls
                     z = 5;
                     fallingBox = new BoxObject(new Vector3(x, y, z), new Vector3(9f, 9f, 9f), 10f);
                     fallingBox.Physics.IsAffectedByGravity = false;
+                    fallingBox.PhysicsMaterial.Bounciness = 0f;
                     
                     RenderMaterial FallingBoxRenMat = new RenderMaterial();
 
-                    switch (player)
+                    switch (player) 
                     {
                         case 0:
                             FallingBoxRenMat.Diffuse = Color.Red.ToVector4();
@@ -362,16 +394,13 @@ namespace _4Balls
 
                     fallingBox.RenderMaterial = FallingBoxRenMat;
 
-                    PointLightObject point = new PointLightObject (
-                    new Vector3 (5, 1, 5), // Position
-                    100f, // Intensit¨at
-                    Color .Green , // Farbe des Lichts
-                    Color .White ); // Farbe der spiegelnden Anteile
-                    Scene.Add(point);
 
                     Console.WriteLine("Box eingefügt");
                     Scene.Add(fallingBox);
-//                  boxen.Add(fallingBox);
+
+                    MarkerRenMat.Diffuse = Color.Blue.ToVector4();
+
+                    markerupate();
 
                     currentState = States.Bewegen;
 
@@ -500,6 +529,7 @@ namespace _4Balls
                         {
                             x = x - 10;
                             fallingBox.MoveToPosition(new Vector3(x, y, z));
+                            markerupate();
                             //Console.WriteLine(String.Format("{0} {1}", fallingBox.Position.X, fallingBox.Position.Y));
                         }
                     }
@@ -509,6 +539,7 @@ namespace _4Balls
                         {
                             x = x + 10;
                             fallingBox.MoveToPosition(new Vector3(x, y, z));
+                            markerupate();
                         }
                     }
                     if (input.WasKeyPressed(Keys.Up, PlayerIndex.One))
@@ -517,6 +548,7 @@ namespace _4Balls
                         {
                             z = z - 10;
                             fallingBox.MoveToPosition(new Vector3(x, y, z));
+                            markerupate();
                         }
                     }
                     if (input.WasKeyPressed(Keys.Down, PlayerIndex.One))
@@ -525,11 +557,14 @@ namespace _4Balls
                         {
                             z = z + 10;
                             fallingBox.MoveToPosition(new Vector3(x, y, z));
+                            markerupate();
                         }
                     }
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One) && (pos[umrechner(x), 3, umrechner(z), 0] == false) && (pos[umrechner(x), 3, umrechner(z), 1] == false))
                     {
                         Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
+                        Scene.Remove(marker);
+                        marker = null;
                         currentState = States.Wait;
                     }
                     break;
@@ -540,8 +575,22 @@ namespace _4Balls
                 case States.Gewinn:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
- //                       Scene.PausePhysics = false;
- //                       currentState = States.End;
+                        Scene.RemoveAllSceneObjects();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            for (int j = 0; j < 4; j++)
+                            {
+                                for (int k = 0; k < 4; k++)
+                                {
+                                    for (int l = 0; l < 2; l++)
+                                    {
+                                        pos[i, j, k, l] = false;
+                                        
+                                    }
+                                }
+                            }
+                        }
+                        currentState = States.Start;
 
                     }
                     break;
