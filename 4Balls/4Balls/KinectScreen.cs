@@ -21,24 +21,34 @@ namespace _4Balls
         float testx = 0.0f;
         float testz = 0.0f;
 
-        double rot = 0;
+        float[] cam = new float[3] { 5f, 5f, 5f };
         int twohand = 0;
+        int sethight = 0;
         int [] handalt = new int[2];
         Vector3 worldPosHandr = Vector3.Zero;
         Vector3 worldPosHandl = Vector3.Zero;
         Vector3 worldPosshoulderl = Vector3.Zero;
         Vector3 worldPosshoulderr = Vector3.Zero;
         BoxObject box;
-        double[] cam = new double[3]{0,5,5};
+        BoxObject box1;
+        BoxObject box2;
+        BoxObject box3;
+        
 
 
         public override void Initialize()
         {
             base.Initialize();
-            Scene.Camera = new CameraObject(new Vector3((float)(cam[0]), (float)(cam[1]), (float)(cam[2])), Vector3.Zero);
+            Scene.Camera = new CameraObject(new Vector3(cam[0], cam[1], cam[2]), Vector3.Zero);
             box = new BoxObject(Vector3.Zero,Vector3.One,1f);
-            box = new BoxObject(new Vector3(1,0,1), Vector3.One, 1f);
+            box1 = new BoxObject(new Vector3(0,-1,0), new Vector3(10, 1, 10), 1f);
+            box2 = new BoxObject(new Vector3(0, -1, 0), new Vector3(0.1f, 100, 0.1f), 0f);
+            box3 = new BoxObject(new Vector3(0, 0, 1), Vector3.One, 0f);
+            Scene.PausePhysics = true;
             Scene.Add(box);
+            Scene.Add(box1);
+            Scene.Add(box2);
+            Scene.Add(box3);
             Scene.InitKinect();
             //Scene.Kinect.ShowCameraImage = Kinect.KinectCameraImage.RGB;
         }
@@ -84,24 +94,29 @@ namespace _4Balls
             // Check right hand
            if (checkHand(diffx[0], diffz[0], 0  /*left*/))
             {
+                Scene.Camera = new CameraObject(new Vector3(5f, 5f, 0f), Vector3.Zero);
                 testx = testx + 0.1f;
-            }
-            if (checkHand(diffx[1], diffz[1], 1  /*right*/))
+           }
+           if (checkHand(diffx[1], diffz[1], 1  /*right*/))
             {
                 testx = testx - 0.1f;
             }
-            testz = testz + checkdepth(diffz[0]);
+            testz = testz + checkdepth(diffz[0], diffx[0], diffx[1]);
 
-            /* if (checkrotate(0)) {
-               
-             }
-             if (checkrotate(1)) {
-                
-             }
-                */
+            
+
+
+            checkrotate(diffy[0]);
+
+            UI2DRenderer.WriteText(Vector2.Zero, cam[0].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+            UI2DRenderer.WriteText(Vector2.Zero, cam[2].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Top);
+
+            Scene.Camera = new CameraObject(new Vector3(cam[0], cam[1], cam[2]), Vector3.Zero);
+                 
+
 
             box.Position = new Vector3(testx, 0f, testz);
-            //Scene.Camera = new CameraObject(new Vector3((float)(cam[0]), (float)(cam[1]), (float)(cam[2])), Vector3.Zero);
+            
             
 
             /*
@@ -147,12 +162,12 @@ namespace _4Balls
         bool checkHand(float x,float z,int hand)
         {
            
-            if (x > 0.4f && handalt[hand] == 0)
+            if ((x > 0.4f && handalt[hand] == 0) && z <= 0.3f)
             {
                 handalt[hand] = 1;
                 return true;
             }
-            else if (x < 0.4f)
+            else if (x <= 0.4f)
             {
                 handalt[hand] = 0;
                 return false;
@@ -163,14 +178,14 @@ namespace _4Balls
             }
         
         }
-        float checkdepth(float z) 
-        {
-            if (z > 0.3f && twohand == 1) 
+        float checkdepth(float z, float x1, float x2) 
+        {   
+            if ((z > 0.3f && twohand == 1)&& (x1 <= 0.4f && x2 <=0.4f))
             {
                 twohand = 2;
                 return (+0.5f);
             }
-            else if (z < 0.1f && twohand == 1)
+            else if ((z < 0.1f && twohand == 1) && (x1 <= 0.4f && x2 <= 0.4f))
             {
                 twohand = 0;
                 return (-0.5f);
@@ -184,12 +199,40 @@ namespace _4Balls
                 return (0f);
             }    
         }
-        
-        bool checkrotate(int hand)
-        {   
+
+        void checkrotate(float y)
+        {
+            if (y > 0.3 && sethight == 0)
+            {
+                if ((cam[0] < 0 && cam[2] < 0) || (cam[0] > 0 && cam[2] > 0))
+                {
+                    cam[0] = -cam[0];
+                }else if ((cam[0] > 0 && cam[2] < 0)||(cam[0] < 0 && cam[2] > 0))
+                { 
+                    cam[2] = -cam[2];
+                }
+                sethight = 1;
+            } else if (y <= 0.3 && y >= -0.3)
+            {
+                sethight = 0;
+            }
+            else if (y < -0.3 && sethight == 0) 
+            {
+                if ((cam[0] < 0 && cam[2] < 0) || (cam[0] > 0 && cam[2] > 0))
+                {
+                    cam[2] = -cam[2];
+                }
+                else if ((cam[0] > 0 && cam[2] < 0) || (cam[0] < 0 && cam[2] > 0))
+                {
+                    cam[0] = -cam[0];
+                }
+                sethight = 1;
+            
+            
+            }
             
 
-            return(true);
+
         }
         
         
