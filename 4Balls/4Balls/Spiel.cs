@@ -15,6 +15,7 @@ using BEPUphysics.Collidables;
 using BEPUphysics.Collidables.Events;
 using BEPUphysics.Collidables.MobileCollidables;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
+using NOVA.Graphics;
 
 
 // Master
@@ -25,22 +26,305 @@ namespace _4Balls
         public enum States
         {
             Start,
-            WaitForCollision,
-            Collided,
+            Boxeinfuegen,
+            Bewegen,
+            Wait,
+            Gewinn,
             End
         }
 
         States currentState;
-        BoxObject box;
-        SphereObject sphere;
+//        List<BoxObject> boxen = new List<BoxObject>();
+
+        BoxObject ground;
+        int player;
+        int x;
+        int y;
+        int z;
+        bool[,,,] pos = new bool[4,4,4,2];
+        BoxObject fallingBox;
+        EventHandler<CollisionArgs> collidedHandler;
+
+
+        int umrechner(int x)
+        {
+            switch (x)
+            {
+                case -15:
+                    return 0;
+
+                case -5:
+                    return 1;
+
+                case 5:
+                    return 2;
+
+                case 15:
+                    return 3;
+
+                default:
+                    Console.WriteLine("Fehler");
+                    return 5;
+
+            }
+
+        }
+
+
+        bool win(int s)
+        {
+            int matches = 0;
+
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s))
+                {
+                    if (pos[(x + i), y, z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((y + i >= 0) && (y + i <= s))
+                {
+                    if (pos[x, (y + i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((z + i >= 0) && (z + i <= s))
+                {
+                    if (pos[x, y, (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s))
+                {
+                    if (pos[(x + i), (y + i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0))
+                {
+                    if (pos[(x + i), (y - i), z, player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((z + i >= 0) && (z + i <= s) && (y + i >= 0) && (y + i <= s))
+                {
+                    if (pos[x, (y + i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((z + i >= 0) && (z + i <= s) && (y - i <= s) && (y - i >= 0))
+                {
+                    if (pos[x, (y - i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s) && (z + i >= 0) && (z + i <= s))
+                {
+                    if (pos[(x + i), (y + i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y + i >= 0) && (y + i <= s) && (z - i <= s) && (z - i >= 0))
+                {
+                    if (pos[(x + i), (y + i), (z - i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0) && (z + i >= 0) && (z + i <= s))
+                {
+                    if (pos[(x + i), (y - i), (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (y - i <= s) && (y - i >= 0) && (z - i <= s) && (z - i >= 0))
+                {
+                    if (pos[(x + i), (y - i), (z - i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            return false;
+
+        }
+
 
         public override void Initialize()
         {
             base.Initialize();
-            Scene.Camera = new CameraObject(new Vector3(0, 15, 35),
-            new Vector3(0, 0, 0));
+//            Scene.RenderType = RenderType.ForwardRenderer;
+            Scene.Camera = new CameraObject(new Vector3(30, 80, 100), new Vector3(0, 20, 0));
             Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -9.81f, 0);
             currentState = States.Start;
+
+            collidedHandler = new EventHandler<CollisionArgs>(BoxCollidedHandler);
+
+            player = 0;
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
@@ -48,21 +332,67 @@ namespace _4Balls
             switch (currentState)
             {
                 case States.Start:
-                    box = new BoxObject(new Vector3(0, 0, 0), new Vector3(10f, 1f, 10f), 0f);
-                    sphere = new SphereObject(new Vector3(0, 10, 0), 2f, 10, 10, 0f);
-                    sphere.Collided += new EventHandler<CollisionArgs>(SphereCollidedHandler);
-                    Scene.Add(box);
-                    Scene.Add(sphere);
 
-                    currentState = States.WaitForCollision;
+                    
+                    ground = new BoxObject(new Vector3(0, 0, 0), new Vector3(50f, 1f, 50f), 0f);
+                    ground.RenderMaterial.Diffuse = new Microsoft.Xna.Framework.Vector4(1, 1, 1, 1);
+                    Scene.Add(ground);
+                    currentState = States.Boxeinfuegen;
                     break;
 
-                case States.WaitForCollision:
+                case States.Boxeinfuegen:
+                    x = 5;
+                    y = 50;
+                    z = 5;
+                    fallingBox = new BoxObject(new Vector3(x, y, z), new Vector3(9f, 9f, 9f), 10f);
+                    fallingBox.Physics.IsAffectedByGravity = false;
+                    
+                    RenderMaterial FallingBoxRenMat = new RenderMaterial();
+
+                    switch (player)
+                    {
+                        case 0:
+                            FallingBoxRenMat.Diffuse = Color.Red.ToVector4();
+                            break;
+
+                        case 1:
+                            FallingBoxRenMat.Diffuse = Color.Green.ToVector4();
+                            break;
+                    }
+
+                    fallingBox.RenderMaterial = FallingBoxRenMat;
+
+                    PointLightObject point = new PointLightObject (
+                    new Vector3 (5, 1, 5), // Position
+                    100f, // Intensit¨at
+                    Color .Green , // Farbe des Lichts
+                    Color .White ); // Farbe der spiegelnden Anteile
+                    Scene.Add(point);
+
+                    Console.WriteLine("Box eingefügt");
+                    Scene.Add(fallingBox);
+//                  boxen.Add(fallingBox);
+
+                    currentState = States.Bewegen;
+
 
                     break;
 
-                case States.Collided:
-                    Scene.PausePhysics = true;
+                case States.Bewegen:
+                    UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+                    break;
+
+                case States.Wait:
+                    if (fallingBox.Physics.LinearVelocity.Length() <= 0f)
+                    {
+                        fallingBox.Collided += collidedHandler;
+                        fallingBox.MoveToPosition(new Vector3(x, (y - 0.1f), z));
+                        fallingBox.Physics.IsAffectedByGravity = true;
+                    }
+                    break;
+
+                case States.Gewinn:
+
                     break;
 
                 case States.End:
@@ -73,18 +403,51 @@ namespace _4Balls
 
         }
 
-        void SphereCollidedHandler(object sender, CollisionArgs e)
+
+
+        void BoxCollidedHandler(object sender, CollisionArgs e)
         {
-            Vector3 position = sphere.Position + new Vector3(0, 3, 0);
-            Text3D text = new Text3D(position,
-            Text3D.Type.Fill,
-            "Hit!",
-            Color.Red,
-            "");
-            text.LinearVelocity = Vector3.Up;
-            text.Lifetime = new TimeSpan(0, 0, 2);
-            Scene.Add(text);
-            currentState = States.Collided;
+            Console.WriteLine(" Collision ");
+
+
+            fallingBox.Collided -= collidedHandler;
+
+            x = umrechner(x);
+            z = umrechner(z);
+
+            for (int i = 0; i < 4; i++)
+            {
+                if ((pos[x, i, z, 0] == false) && (pos[x, i, z, 1] == false))
+                {
+                    pos[x, i, z, player] = true;
+                    y = i;
+                    break;
+                }
+            }
+
+
+
+
+
+            if (win(3) == true)
+            {
+                currentState = States.Gewinn;
+            }
+            else
+            {
+                switch (player)
+                {
+                    case 0:
+                        player = 1;
+                        break;
+
+                    case 1:
+                        player = 0;
+                        break;
+                }
+                currentState = States.Boxeinfuegen;
+            }
+
         }
 
         public override void Draw(GameTime gameTime)
@@ -94,12 +457,16 @@ namespace _4Balls
             switch (currentState)
             {
                 case States.Start:
-                case States.WaitForCollision:
-                    text = " Press Space to start !";
+                case States.Boxeinfuegen:
+                    text = " einfuegen";
                     color = Color.Yellow;
                     break;
-                case States.Collided:
-                    text = " Press Space to see physical effect of collision ";
+                case States.Bewegen:
+                    break;
+                case States.Wait:
+                    break;
+                case States.Gewinn:
+                    text = " Gewonnen! ";
                     color = Color.Yellow;
                     break;
                 case States.End:
@@ -117,26 +484,72 @@ namespace _4Balls
             {
                 case States.Start:
                     break;
-                case States.WaitForCollision:
+                case States.Boxeinfuegen:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
-                        sphere.Mass = 1f;
-                        sphere.Physics.Material.Bounciness = 1.8f;
+                        //box.Mass = 1f;
+                        //box2.Mass = 100f;
+                        //box.Physics.Material.Bounciness = 1.8f;
                     }
                     break;
-                case States.Collided:
+
+                case States.Bewegen:
+                    if (input.WasKeyPressed(Keys.Left, PlayerIndex.One))
+                    {
+                        if (x > -15)
+                        {
+                            x = x - 10;
+                            fallingBox.MoveToPosition(new Vector3(x, y, z));
+                            //Console.WriteLine(String.Format("{0} {1}", fallingBox.Position.X, fallingBox.Position.Y));
+                        }
+                    }
+                    if (input.WasKeyPressed(Keys.Right, PlayerIndex.One))
+                    {
+                        if (x < 15)
+                        {
+                            x = x + 10;
+                            fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        }
+                    }
+                    if (input.WasKeyPressed(Keys.Up, PlayerIndex.One))
+                    {
+                        if (z > -15)
+                        {
+                            z = z - 10;
+                            fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        }
+                    }
+                    if (input.WasKeyPressed(Keys.Down, PlayerIndex.One))
+                    {
+                        if (z < 15)
+                        {
+                            z = z + 10;
+                            fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        }
+                    }
+                    if (input.WasKeyPressed(Keys.Space, PlayerIndex.One) && (pos[umrechner(x), 3, umrechner(z), 0] == false) && (pos[umrechner(x), 3, umrechner(z), 1] == false))
+                    {
+                        Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
+                        currentState = States.Wait;
+                    }
+                    break;
+
+                case States.Wait:
+                    break;
+
+                case States.Gewinn:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
-                        Scene.PausePhysics = false;
-                        currentState = States.End;
+ //                       Scene.PausePhysics = false;
+ //                       currentState = States.End;
 
                     }
                     break;
                 case States.End:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
-                        Scene.RemoveAllSceneObjects();
-                        currentState = States.Start;
+  //                      Scene.RemoveAllSceneObjects();
+  //                      currentState = States.Start;
                     }
                     break;
             }
