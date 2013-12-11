@@ -44,7 +44,16 @@ namespace _4Balls
         bool[,,,] pos = new bool[4,4,4,2];
         BoxObject fallingBox;
         EventHandler<CollisionArgs> collidedHandler;
-
+        Vector3 worldPosHandr = Vector3.Zero;
+        Vector3 worldPosHandl = Vector3.Zero;
+        Vector3 worldPosshoulderl = Vector3.Zero;
+        Vector3 worldPosshoulderr = Vector3.Zero;
+        float[] diffx = new float[2];
+        float[] diffy = new float[2];
+        float[] diffz = new float[2];
+        int[] handalt = new int[2];
+        int twohand = 0;
+        int sethight = 0;
 
         int umrechner(int x)
         {
@@ -69,8 +78,6 @@ namespace _4Balls
             }
 
         }
-
-
         bool win(int s)
         {
             int matches = 0;
@@ -320,6 +327,8 @@ namespace _4Balls
 //            Scene.RenderType = RenderType.ForwardRenderer;
             Scene.Camera = new CameraObject(new Vector3(30, 80, 100), new Vector3(0, 20, 0));
             Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -9.81f, 0);
+            Scene.InitKinect();
+            
             currentState = States.Start;
 
             collidedHandler = new EventHandler<CollisionArgs>(BoxCollidedHandler);
@@ -329,6 +338,8 @@ namespace _4Balls
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+
+
             switch (currentState)
             {
                 case States.Start:
@@ -379,6 +390,71 @@ namespace _4Balls
                     break;
 
                 case States.Bewegen:
+                    
+                    if (Scene.Kinect.SkeletonDataReady)
+                    {
+                        List<NOVA.Components.Kinect.Skeleton> skeletons = new List<NOVA.Components.Kinect.Skeleton>(Scene.Kinect.Skeletons);
+                        foreach (NOVA.Components.Kinect.Skeleton skeleton in skeletons)
+                        {
+                            if (skeleton.TrackingState == SkeletonTrackingState.Tracked && skeleton.Joints.Count != 0 && skeleton.Joints[JointType.HandRight].TrackingState == JointTrackingState.Tracked)
+                            {
+                                worldPosHandr = skeleton.Joints[JointType.HandRight].WorldPosition;
+                            }
+                            if (skeleton.TrackingState == SkeletonTrackingState.Tracked && skeleton.Joints.Count != 0 && skeleton.Joints[JointType.HandLeft].TrackingState == JointTrackingState.Tracked)
+                            {
+                                worldPosHandl = skeleton.Joints[JointType.HandLeft].WorldPosition;
+                            }
+                            if (skeleton.TrackingState == SkeletonTrackingState.Tracked && skeleton.Joints.Count != 0 && skeleton.Joints[JointType.ShoulderRight].TrackingState == JointTrackingState.Tracked)
+                            {
+                                worldPosshoulderr = skeleton.Joints[JointType.ShoulderRight].WorldPosition;
+                            }
+                            if (skeleton.TrackingState == SkeletonTrackingState.Tracked && skeleton.Joints.Count != 0 && skeleton.Joints[JointType.ShoulderLeft].TrackingState == JointTrackingState.Tracked)
+                            {
+                                worldPosshoulderl = skeleton.Joints[JointType.ShoulderLeft].WorldPosition;
+                            }
+
+                        }
+                        diffx[0] = worldPosHandr.X - worldPosshoulderr.X;
+                        diffx[1] = worldPosshoulderl.X - worldPosHandl.X;
+
+                        diffy[0] = worldPosHandr.Y - worldPosshoulderr.Y;
+                        diffy[1] = worldPosshoulderl.Y - worldPosHandl.Y;
+
+                        diffz[0] = worldPosshoulderr.Z - worldPosHandr.Z;
+                        diffz[1] = worldPosshoulderl.Z - worldPosHandl.Z;
+
+                        if (checkHand(diffx[0], diffz[0], 0, diffy[0]  /*left*/))
+                        {
+                            if (x < 15)
+                            {
+                                x = x + 10;
+                                //fallingBox.MoveToPosition(new Vector3(x, y, z));
+                            }
+                        }
+                        if (checkHand(diffx[1], diffz[1], 1, diffy[1]  /*right*/))
+                        {
+                            if (x > -15)
+                            {
+                                x = x - 10;
+                                //fallingBox.MoveToPosition(new Vector3(x, y, z));
+                               
+                            }
+                        }
+
+                 //       UI2DRenderer.WriteText(Vector2.Zero, cam[2].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Top);
+                        checkdepth(diffz[0], diffx[0], diffx[1], diffy[0]);
+                        checkfallingbox(diffy[0]);
+                       
+
+                        fallingBox.MoveToPosition(new Vector3(x, y, z));
+
+
+
+                    }
+
+                                    
+
+
                     UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
                     break;
 
@@ -403,7 +479,79 @@ namespace _4Balls
 
         }
 
+        
+        bool checkHand(float x1, float z1, int hand, float y2)
+        {
 
+            if ((x1 > 0.4f && handalt[hand] == 0) && z1 <= 0.3f && y2 >= -0.3f)
+            {
+                handalt[hand] = 1;
+                return true;
+            }
+            else if (x1 <= 0.4f)
+            {
+                handalt[hand] = 0;
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        int checkdepth(float z1, float x2, float x3, float y3)
+        {
+            if ((z1 > 0.4f && twohand == 1) && (x2 <= 0.4f && x3 <= 0.4f) && y3 >= -0.3f)
+            {
+                twohand = 2;
+                if (z > -15)
+                {
+                    z = z - 10;
+                }
+                return (z);
+            }
+            else if ((z1 < 0.1f && twohand == 1) && (x2 <= 0.4f && x3 <= 0.4f) && y3 >= -0.3f)
+            {
+                twohand = 0;
+                if (z < 15)
+                {
+                    z = z + 10;
+                }
+                return (z);
+            }
+            else if (z1 <= 0.4f && z1 >= 0.1f)
+            {
+                twohand = 1;
+                return (z);
+            }
+            else
+            {
+
+                return (z);
+            }
+        }
+
+        void checkfallingbox(float y1)
+        {
+            if (y1 < -0.3 && sethight == 0)
+            {
+                sethight = 1;
+
+                Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
+                currentState = States.Wait;
+
+
+            }
+            else
+            {
+                sethight = 0;
+            }
+           
+
+
+
+        }
 
         void BoxCollidedHandler(object sender, CollisionArgs e)
         {
