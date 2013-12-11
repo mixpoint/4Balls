@@ -94,6 +94,7 @@ namespace _4Balls
             // Check right hand
            if (checkHand(diffx[0], diffz[0], 0  /*left*/))
             {
+               
                 testx = testx + 0.1f;
            }
            if (checkHand(diffx[1], diffz[1], 1  /*right*/))

@@ -54,7 +54,8 @@ namespace _4Balls
         int[] handalt = new int[2];
         int twohand = 0;
         int sethight = 0;
-
+        float[] cam = new float[3] { 30, 80, 100 };
+       
         int umrechner(int x)
         {
             switch (x)
@@ -325,7 +326,7 @@ namespace _4Balls
         {
             base.Initialize();
 //            Scene.RenderType = RenderType.ForwardRenderer;
-            Scene.Camera = new CameraObject(new Vector3(30, 80, 100), new Vector3(0, 20, 0));
+            Scene.Camera = new CameraObject(new Vector3(cam[0], cam[1], cam[2]), new Vector3(0, 20, 0));
             Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -9.81f, 0);
             Scene.InitKinect();
             
@@ -417,18 +418,19 @@ namespace _4Balls
                         diffx[0] = worldPosHandr.X - worldPosshoulderr.X;
                         diffx[1] = worldPosshoulderl.X - worldPosHandl.X;
 
-                        diffy[0] = worldPosHandr.Y - worldPosshoulderr.Y;
-                        diffy[1] = worldPosshoulderl.Y - worldPosHandl.Y;
+                        diffy[0] = worldPosHandr.Y + worldPosshoulderr.Y;
+                        diffy[1] = worldPosHandl.Y + worldPosshoulderl.Y;
 
                         diffz[0] = worldPosshoulderr.Z - worldPosHandr.Z;
                         diffz[1] = worldPosshoulderl.Z - worldPosHandl.Z;
+
+
 
                         if (checkHand(diffx[0], diffz[0], 0, diffy[0]  /*left*/))
                         {
                             if (x < 15)
                             {
                                 x = x + 10;
-                                //fallingBox.MoveToPosition(new Vector3(x, y, z));
                             }
                         }
                         if (checkHand(diffx[1], diffz[1], 1, diffy[1]  /*right*/))
@@ -436,26 +438,28 @@ namespace _4Balls
                             if (x > -15)
                             {
                                 x = x - 10;
-                                //fallingBox.MoveToPosition(new Vector3(x, y, z));
-                               
                             }
                         }
 
                  //       UI2DRenderer.WriteText(Vector2.Zero, cam[2].ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Top);
                         checkdepth(diffz[0], diffx[0], diffx[1], diffy[0]);
-                        checkfallingbox(diffy[0]);
-                       
+                        checkfallingbox(diffy[0], diffy[1]);
+                        checkrotate(diffy[0], diffy[1]);
 
-                        fallingBox.MoveToPosition(new Vector3(x, y, z));
+                        
+                        Scene.Camera = new CameraObject(new Vector3(cam[0], cam[1], cam[2]), new Vector3(0, 20, 0));
 
+                        Matrix vm = Scene.Camera.ViewMatrix;
+                        Matrix vmi = Matrix.Invert(vm);
+                        
 
-
+                       fallingBox.MoveToPosition(new Vector3(x, y, z));
                     }
 
                                     
 
 
-                    UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+                   // UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
                     break;
 
                 case States.Wait:
@@ -532,23 +536,56 @@ namespace _4Balls
             }
         }
 
-        void checkfallingbox(float y1)
+        void checkfallingbox(float rechtehand, float linkehand)
         {
-            if (y1 < -0.3 && sethight == 0)
+            if (rechtehand < -0.2 && linkehand < -0.2)
             {
-                sethight = 1;
-
-                Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
                 currentState = States.Wait;
-
-
             }
             else
             {
+            }
+        }
+
+        void checkrotate(float rechtehand1, float linkehand1)
+        {
+
+
+
+            UI2DRenderer.WriteText(Vector2.Zero, rechtehand1.ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Top);
+            UI2DRenderer.WriteText(Vector2.Zero, linkehand1.ToString(), Color.Red, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+            
+   
+            if ((linkehand1 < -0.2 && rechtehand1 > 0.2) && sethight == 0)
+            {
+                if ((cam[0] < 0 && cam[2] < 0) || (cam[0] > 0 && cam[2] > 0))
+                {
+                    cam[0] = -cam[0];
+                }
+                else if ((cam[0] > 0 && cam[2] < 0) || (cam[0] < 0 && cam[2] > 0))
+                {
+                    cam[2] = -cam[2];
+                }
+                sethight = 1;
+            }
+            else if ((linkehand1 <= 0.2 && linkehand1 >= -0.2) || (rechtehand1 <= 0.2 && rechtehand1 >= -0.2))
+            {
+
                 sethight = 0;
             }
            
-
+            if ((rechtehand1 < -0.2 && linkehand1 > 0.2) && sethight == 0 )
+            {
+                if ((cam[0] < 0 && cam[2] < 0) || (cam[0] > 0 && cam[2] > 0))
+                {
+                    cam[2] = -cam[2];
+                }
+                else if ((cam[0] > 0 && cam[2] < 0) || (cam[0] < 0 && cam[2] > 0))
+                {
+                    cam[0] = -cam[0];
+                }
+                sethight = 1;
+            }
 
 
         }
