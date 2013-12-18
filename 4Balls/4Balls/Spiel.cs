@@ -42,6 +42,7 @@ namespace _4Balls
         int y;
         int z;
         bool[,,,] pos = new bool[4,4,4,2];
+        double winkel;
         BoxObject fallingBox;
         BoxObject marker;
         RenderMaterial MarkerRenMat = new RenderMaterial();
@@ -336,7 +337,7 @@ namespace _4Balls
         {
             base.Initialize();
 //            Scene.RenderType = RenderType.ForwardRenderer;
-            Scene.Camera = new CameraObject(new Vector3(30, 80, 100), new Vector3(0, 20, 0));
+            Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkel), 80, 100 * (float)Math.Sin(winkel)), new Vector3(0, 20, 0));
             Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -30.81f, 0);
             currentState = States.Start;
 //            Scene.ShowCollisionMeshes = true;
@@ -347,6 +348,9 @@ namespace _4Balls
             //BEPUphysics.Settings.CollisionResponseSettings.PenetrationRecoveryStiffness = 10f;
             BEPUphysics.Settings.CollisionDetectionSettings.DefaultMargin = 0.4f;
             BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100000f;
+
+
+            winkel = 0;
             
             player = 0;
         }
@@ -418,7 +422,8 @@ namespace _4Balls
                     break;
 
                 case States.Bewegen:
-                    UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+                    //UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+                    UI2DRenderer.WriteText(Vector2.Zero, winkel.ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
                     break;
 
                 case States.Wait:
@@ -581,6 +586,36 @@ namespace _4Balls
                         marker = null;
                         currentState = States.Wait;
                     }
+
+                    if (input.WasKeyPressed(Keys.K, PlayerIndex.One))
+                    {
+
+                        Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
+                        winkel -= 0.1;
+                        Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkel), 80, 100 * (float)Math.Sin(winkel)), new Vector3(0, 20, 0));
+                        //Scene.Camera.Target = new Vector3(0, 20, 0);
+                        //Scene.Camera.Position = new Vector3(70*(float)Math.Cos(winkel), 80, 70*(float)Math.Sin(winkel));
+                        //Scene.Camera.Target = new Vector3(0, 20, 0);
+                        //Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
+                        //Scene.ShowGrid = true;
+                        //Scene.Camera.Target = new Vector3(0, 20, 0);
+                    }
+
+                    if (input.WasKeyPressed(Keys.L, PlayerIndex.One))
+                    {
+
+                        Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
+                        winkel += 0.1;
+                        Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkel), 80, 100 * (float)Math.Sin(winkel)), new Vector3(0, 20, 0));
+                        //Scene.Camera.Target = new Vector3(0, 20, 0);
+                        //Scene.Camera.Position = new Vector3(70*(float)Math.Cos(winkel), 80, 70*(float)Math.Sin(winkel));
+                        //Scene.Camera.Target = new Vector3(0, 20, 0);
+                        //Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
+                        //Scene.ShowGrid = true;
+                        //Scene.Camera.Target = new Vector3(0, 20, 0);
+                    }
+
+
                     break;
 
                 case States.Wait:
