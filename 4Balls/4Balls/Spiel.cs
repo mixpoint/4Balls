@@ -324,7 +324,7 @@ namespace _4Balls
                 marker = null;
                 if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
                 {
-                    marker = new BoxObject(new Vector3(x, (i * 9 + 0.6f), z), new Vector3(9f, 0.1f, 9f), 40f);
+                    marker = new BoxObject(new Vector3(x, (i * 9 + 0.6f), z), new Vector3(9f, 0.1f, 9f), 0.1f);
                     marker.RenderMaterial = MarkerRenMat;
                     Scene.Add(marker);
                     break;
@@ -337,11 +337,17 @@ namespace _4Balls
             base.Initialize();
 //            Scene.RenderType = RenderType.ForwardRenderer;
             Scene.Camera = new CameraObject(new Vector3(30, 80, 100), new Vector3(0, 20, 0));
-            Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -9.81f, 0);
+            Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -30.81f, 0);
             currentState = States.Start;
-
+//            Scene.ShowCollisionMeshes = true;
             collidedHandler = new EventHandler<CollisionArgs>(BoxCollidedHandler);
 
+            BEPUphysics.Settings.MotionSettings.DefaultPositionUpdateMode = BEPUphysics.PositionUpdating.PositionUpdateMode.Continuous;
+            BEPUphysics.Settings.CollisionDetectionSettings.AllowedPenetration = 0.4f;
+            //BEPUphysics.Settings.CollisionResponseSettings.PenetrationRecoveryStiffness = 10f;
+            BEPUphysics.Settings.CollisionDetectionSettings.DefaultMargin = 0.4f;
+            BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100000f;
+            
             player = 0;
         }
 
@@ -361,13 +367,15 @@ namespace _4Balls
                     {
                         for (int j = 0; j < 4; j++)
                         {
-                            ground = new BoxObject(new Vector3(-15 + i * 10, 0.6f, -15 + j * 10), new Vector3(9f, 0.1f, 9f), 10f);
-                            ground.PhysicsMaterial.Bounciness = 0f;
-                            ground.RenderMaterial.Diffuse = new Microsoft.Xna.Framework.Vector4(1, 1, 1, 1);
-                            Scene.Add(ground);
+                            BoxObject groundPlane = new BoxObject(new Vector3(-15 + i * 10, 0.55f, -15 + j * 10), new Vector3(9f, 0.1f, 9f), 0f);
+                            groundPlane.PhysicsMaterial.Bounciness = 0f;
+                            groundPlane.RenderMaterial.Diffuse = new Microsoft.Xna.Framework.Vector4(10, 1, 1, 1);
+                            Scene.Add(groundPlane);
                         }
                     }
 
+                    
+                    
                     currentState = States.Boxeinfuegen;
                     break;
 
@@ -375,10 +383,11 @@ namespace _4Balls
                     x = 5;
                     y = 50;
                     z = 5;
-                    fallingBox = new BoxObject(new Vector3(x, y, z), new Vector3(9f, 9f, 9f), 10f);
-                    fallingBox.Physics.IsAffectedByGravity = false;
-                    fallingBox.PhysicsMaterial.Bounciness = 0f;
-                    
+                    BoxObject fallingBox2 = new BoxObject(new Vector3(x, y, z), new Vector3(9f, 9f, 9f), 1f);
+                    fallingBox2.Physics.IsAffectedByGravity = false;
+                    fallingBox2.PhysicsMaterial.Bounciness = 0f;
+                    fallingBox2.Collided += collidedHandler;
+
                     RenderMaterial FallingBoxRenMat = new RenderMaterial();
 
                     switch (player) 
@@ -392,11 +401,12 @@ namespace _4Balls
                             break;
                     }
 
-                    fallingBox.RenderMaterial = FallingBoxRenMat;
+                    fallingBox2.RenderMaterial = FallingBoxRenMat;
 
 
                     Console.WriteLine("Box eingefügt");
-                    Scene.Add(fallingBox);
+                    Scene.Add(fallingBox2);
+                    fallingBox = fallingBox2;
 
                     MarkerRenMat.Diffuse = Color.Blue.ToVector4();
 
@@ -414,9 +424,10 @@ namespace _4Balls
                 case States.Wait:
                     if (fallingBox.Physics.LinearVelocity.Length() <= 0f)
                     {
-                        fallingBox.Collided += collidedHandler;
-                        fallingBox.MoveToPosition(new Vector3(x, (y - 0.1f), z));
+                        
+                        //fallingBox.MoveToPosition(new Vector3(x, (y - 0.1f), z));                        
                         fallingBox.Physics.IsAffectedByGravity = true;
+                        fallingBox.Physics.LinearVelocity = -Vector3.UnitY*1;
                     }
                     break;
 
@@ -438,8 +449,11 @@ namespace _4Balls
         {
             Console.WriteLine(" Collision ");
 
-
-            fallingBox.Collided -= collidedHandler;
+            BoxObject box = sender as BoxObject;
+            box.Collided -= collidedHandler;            
+            box.Physics.LinearVelocity = Vector3.Zero;
+            //box.Physics.IsAffectedByGravity = false;
+            //box.Mass = 0f;
 
             x = umrechner(x);
             z = umrechner(z);
