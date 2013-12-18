@@ -43,6 +43,7 @@ namespace _4Balls
         int z;
         bool[,,,] pos = new bool[4,4,4,2];
         double winkel;
+        double winkelcam;
         BoxObject fallingBox;
         BoxObject marker;
         RenderMaterial MarkerRenMat = new RenderMaterial();
@@ -337,7 +338,7 @@ namespace _4Balls
         {
             base.Initialize();
 //            Scene.RenderType = RenderType.ForwardRenderer;
-            Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkel), 80, 100 * (float)Math.Sin(winkel)), new Vector3(0, 20, 0));
+            Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
             Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -30.81f, 0);
             currentState = States.Start;
 //            Scene.ShowCollisionMeshes = true;
@@ -350,7 +351,8 @@ namespace _4Balls
             BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100000f;
 
 
-            winkel = 0;
+            winkel = Math.PI / 4;
+            winkelcam = 0;
             
             player = 0;
         }
@@ -544,40 +546,184 @@ namespace _4Balls
                 case States.Bewegen:
                     if (input.WasKeyPressed(Keys.Left, PlayerIndex.One))
                     {
-                        if (x > -15)
+
+                        if (Math.Sin(winkel) >= 0 && Math.Cos(winkel) >= 0)
                         {
-                            x = x - 10;
-                            fallingBox.MoveToPosition(new Vector3(x, y, z));
-                            markerupate();
-                            //Console.WriteLine(String.Format("{0} {1}", fallingBox.Position.X, fallingBox.Position.Y));
+                            if (z < 15)
+                            {
+                                z = z + 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
                         }
+
+                        if (Math.Sin(winkel) >= 0 && Math.Cos(winkel) <= 0)
+                        {
+                            if (x > -15)
+                            {
+                                x = x - 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+                        if (Math.Sin(winkel) <= 0 && Math.Cos(winkel) <= 0)
+                        {
+                            if (z > -15)
+                            {
+                                z = z - 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+                        if (Math.Sin(winkel) <= 0 && Math.Cos(winkel) >= 0)
+                        {
+                            if (x < 15)
+                            {
+                                x = x + 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+
+
+
+
                     }
                     if (input.WasKeyPressed(Keys.Right, PlayerIndex.One))
                     {
-                        if (x < 15)
+                        if (Math.Sin(winkel) >= 0 && Math.Cos(winkel) >= 0)
                         {
-                            x = x + 10;
-                            fallingBox.MoveToPosition(new Vector3(x, y, z));
-                            markerupate();
+                            if (z > -15)
+                            {
+                                z = z - 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
                         }
+
+                        if (Math.Sin(winkel) >= 0 && Math.Cos(winkel) <= 0)
+                        {
+                            if (x < 15)
+                            {
+                                x = x + 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+                        if (Math.Sin(winkel) <= 0 && Math.Cos(winkel) <= 0)
+                        {
+                            if (z < 15)
+                            {
+                                z = z + 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+                        if (Math.Sin(winkel) <= 0 && Math.Cos(winkel) >= 0)
+                        {
+                            if (x > -15)
+                            {
+                                x = x - 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+
+
                     }
                     if (input.WasKeyPressed(Keys.Up, PlayerIndex.One))
                     {
-                        if (z > -15)
+                        if (Math.Sin(winkel) >= 0 && Math.Cos(winkel) >= 0)
                         {
-                            z = z - 10;
-                            fallingBox.MoveToPosition(new Vector3(x, y, z));
-                            markerupate();
+                            if (x > -15)
+                            {
+                                x = x - 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
                         }
+
+
+                        if (Math.Sin(winkel) >= 0 && Math.Cos(winkel) <= 0)
+                        {
+                            if (z > -15)
+                            {
+                                z = z - 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+                        if (Math.Sin(winkel) <= 0 && Math.Cos(winkel) <= 0)
+                        {
+                            if (x < 15)
+                            {
+                                x = x + 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+                        if (Math.Sin(winkel) <= 0 && Math.Cos(winkel) >= 0)
+                        {
+                            if (z < 15)
+                            {
+                                z = z + 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+
                     }
                     if (input.WasKeyPressed(Keys.Down, PlayerIndex.One))
                     {
-                        if (z < 15)
+                        if (Math.Sin(winkel) >= 0 && Math.Cos(winkel) >= 0)
                         {
-                            z = z + 10;
-                            fallingBox.MoveToPosition(new Vector3(x, y, z));
-                            markerupate();
+                            if (x < 15)
+                            {
+                                x = x + 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
                         }
+
+                        if (Math.Sin(winkel) >= 0 && Math.Cos(winkel) <= 0)
+                        {
+                            if (z < 15)
+                            {
+                                z = z + 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+                        if (Math.Sin(winkel) <= 0 && Math.Cos(winkel) <= 0)
+                        {
+                            if (x > -15)
+                            {
+                                x = x - 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+
+                        if (Math.Sin(winkel) <= 0 && Math.Cos(winkel) >= 0)
+                        {
+                            if (z > -15)
+                            {
+                                z = z - 10;
+                                fallingBox.MoveToPosition(new Vector3(x, y, z));
+                                markerupate();
+                            }
+                        }
+ 
                     }
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One) && (pos[umrechner(x), 3, umrechner(z), 0] == false) && (pos[umrechner(x), 3, umrechner(z), 1] == false))
                     {
@@ -592,7 +738,8 @@ namespace _4Balls
 
                         Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
                         winkel -= 0.1;
-                        Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkel), 80, 100 * (float)Math.Sin(winkel)), new Vector3(0, 20, 0));
+                        winkelcam -= 0.1;
+                        Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
                         //Scene.Camera.Target = new Vector3(0, 20, 0);
                         //Scene.Camera.Position = new Vector3(70*(float)Math.Cos(winkel), 80, 70*(float)Math.Sin(winkel));
                         //Scene.Camera.Target = new Vector3(0, 20, 0);
@@ -606,7 +753,8 @@ namespace _4Balls
 
                         Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
                         winkel += 0.1;
-                        Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkel), 80, 100 * (float)Math.Sin(winkel)), new Vector3(0, 20, 0));
+                        winkelcam += 0.1;
+                        Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
                         //Scene.Camera.Target = new Vector3(0, 20, 0);
                         //Scene.Camera.Position = new Vector3(70*(float)Math.Cos(winkel), 80, 70*(float)Math.Sin(winkel));
                         //Scene.Camera.Target = new Vector3(0, 20, 0);
