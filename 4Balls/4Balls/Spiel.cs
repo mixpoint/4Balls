@@ -44,9 +44,12 @@ namespace _4Balls
         bool[,,,] pos = new bool[4,4,4,2];
         double winkel;
         double winkelcam;
+        bool markerint;
         BoxObject fallingBox;
         BoxObject marker;
         RenderMaterial MarkerRenMat = new RenderMaterial();
+        BoxObject PHalter;
+        RenderMaterial PHalterMat = new RenderMaterial();
         EventHandler<CollisionArgs> collidedHandler;
 
 
@@ -313,6 +316,48 @@ namespace _4Balls
                 }
             }
 
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (z + i >= 0) && (z + i <= s))
+                {
+                    if (pos[(x + i), y, (z + i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
+            matches = 0;
+            for (int i = -3; i <= 3; i++)
+            {
+                if ((x + i >= 0) && (x + i <= s) && (z - i <= s) && (z - i >= 0))
+                {
+                    if (pos[(x + i), y, (z - i), player] == true)
+                    {
+                        matches++;
+                        if (matches == 4)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        matches = 0;
+                    }
+
+                }
+            }
+
             return false;
 
         }
@@ -322,11 +367,26 @@ namespace _4Balls
             
             for (int i = 0; i < 4; i++)
             {
-                Scene.Remove(marker);
+                if (markerint == false)
+                {
+                    markerint = true;
+                }
+                else
+                {
+
+                    Scene.Remove(marker);
+                }
                 marker = null;
                 if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
                 {
-                    marker = new BoxObject(new Vector3(x, (i * 9 + 0.6f), z), new Vector3(9f, 0.1f, 9f), 0.1f);
+                    if (i == 0)
+                    {
+                        marker = new BoxObject(new Vector3(x, (0.6f), z), new Vector3(5f, 0.1f, 5f), 0f);
+                    }
+                    else
+                    {
+                        marker = new BoxObject(new Vector3(x, ((i - 1) * 9f + 5.6f), z), new Vector3(5f, 0.1f, 5f), 0f);
+                    }
                     marker.RenderMaterial = MarkerRenMat;
                     Scene.Add(marker);
                     break;
@@ -339,20 +399,24 @@ namespace _4Balls
             base.Initialize();
 //            Scene.RenderType = RenderType.ForwardRenderer;
             Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
-            Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -30.81f, 0);
+            Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -900.81f, 0);
             currentState = States.Start;
 //            Scene.ShowCollisionMeshes = true;
             collidedHandler = new EventHandler<CollisionArgs>(BoxCollidedHandler);
 
             BEPUphysics.Settings.MotionSettings.DefaultPositionUpdateMode = BEPUphysics.PositionUpdating.PositionUpdateMode.Continuous;
             BEPUphysics.Settings.CollisionDetectionSettings.AllowedPenetration = 0.4f;
-            //BEPUphysics.Settings.CollisionResponseSettings.PenetrationRecoveryStiffness = 10f;
+//            BEPUphysics.Settings.CollisionResponseSettings.PenetrationRecoveryStiffness = 10f;
             BEPUphysics.Settings.CollisionDetectionSettings.DefaultMargin = 0.4f;
-            BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100000f;
+            BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100f;
+            Scene.ShowTriangleCount = true;
+
 
 
             winkel = Math.PI / 4;
             winkelcam = 0;
+
+            markerint = false;
             
             player = 0;
         }
@@ -389,7 +453,7 @@ namespace _4Balls
                     x = 5;
                     y = 50;
                     z = 5;
-                    BoxObject fallingBox2 = new BoxObject(new Vector3(x, y, z), new Vector3(9f, 9f, 9f), 1f);
+                    BoxObject fallingBox2 = new BoxObject(new Vector3(x, y, z), new Vector3(5f, 5f, 5f), 1f);
                     fallingBox2.Physics.IsAffectedByGravity = false;
                     fallingBox2.PhysicsMaterial.Bounciness = 0f;
                     fallingBox2.Collided += collidedHandler;
@@ -406,6 +470,7 @@ namespace _4Balls
                             FallingBoxRenMat.Diffuse = Color.Green.ToVector4();
                             break;
                     }
+
 
                     fallingBox2.RenderMaterial = FallingBoxRenMat;
 
@@ -461,6 +526,20 @@ namespace _4Balls
             box.Physics.LinearVelocity = Vector3.Zero;
             //box.Physics.IsAffectedByGravity = false;
             //box.Mass = 0f;
+
+           
+/*            for (int i = 0; i < 4; i++)
+            {
+                if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
+                {
+                    PHalter = new BoxObject(new Vector3(x, (i * 9 + 7.6f), z), new Vector3(5f, 4f, 5f), 0f);
+                    PHalterMat.Transparency = 1f;
+                    PHalter.RenderMaterial = PHalterMat;
+                    Scene.Add(PHalter);
+                    break;
+                }
+            }
+            */
 
             x = umrechner(x);
             z = umrechner(z);
@@ -730,6 +809,27 @@ namespace _4Balls
                         Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
                         Scene.Remove(marker);
                         marker = null;
+
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
+                            {
+                                if (i != 0)
+                                {
+                                    PHalter = new BoxObject(new Vector3(x, ((i - 1) * 9 + 7.6f), z), new Vector3(5f, 4f, 5f), 0f);
+                                    PHalterMat.Transparency = 1f;
+                                    PHalter.RenderMaterial = PHalterMat;
+                                    Scene.Add(PHalter);
+                                    break;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+
+                            }
+                        }
+
                         currentState = States.Wait;
                     }
 
@@ -787,6 +887,7 @@ namespace _4Balls
                                 }
                             }
                         }
+                        markerint = false;
                         currentState = States.Start;
 
                     }
