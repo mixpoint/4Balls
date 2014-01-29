@@ -481,7 +481,7 @@ namespace _4Balls
 //            BEPUphysics.Settings.CollisionResponseSettings.PenetrationRecoveryStiffness = 10f;
             BEPUphysics.Settings.CollisionDetectionSettings.DefaultMargin = 0.4f;
             BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100000f;
-            Scene.ShowTriangleCount = true;
+//            Scene.ShowTriangleCount = true;
 
             winkel = Math.PI / 4;
             winkelcam = 0;
