@@ -40,7 +40,7 @@ namespace _4Balls
         {
             // TODO: Add your initialization logic here
             m_nova = new NOVAEngine(this, graphics, Content);
-            LoadingScreen.Load(m_nova.ScreenManager, true, PlayerIndex.One, new Spiel());
+            LoadingScreen.Load(m_nova.ScreenManager, true, PlayerIndex.One, new MainMenuScreen());
             base.Initialize();
         }
 

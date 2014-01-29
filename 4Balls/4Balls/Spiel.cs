@@ -16,6 +16,7 @@ using BEPUphysics.Collidables.Events;
 using BEPUphysics.Collidables.MobileCollidables;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
 using NOVA.Graphics;
+using System.Timers;
 
 
 // Master
@@ -33,18 +34,23 @@ namespace _4Balls
             End
         }
 
+        double lastGameTime = 0;
         States currentState;
 //        List<BoxObject> boxen = new List<BoxObject>();
-
+        bool timerRunning = false;
+        GameTime ourGameTimeObj;
+        System.Timers.Timer timerObj = new System.Timers.Timer() { Interval = 1000, Enabled = true};
         BoxObject ground;
         int player;
         int x;
         int y;
         int z;
+        int zeit;
         bool[,,,] pos = new bool[4,4,4,2];
         double winkel;
         double winkelcam;
         bool markerint;
+        bool downset;
         BoxObject fallingBox;
         BoxObject marker;
         RenderMaterial MarkerRenMat = new RenderMaterial();
@@ -52,7 +58,47 @@ namespace _4Balls
         RenderMaterial PHalterMat = new RenderMaterial();
         EventHandler<CollisionArgs> collidedHandler;
 
+        public Spiel(int spielzeit)
+        {
+            zeit = spielzeit;
+        }
 
+        void timerHandlerTemp(object source, ElapsedEventArgs e)
+        {
+            timerRunning = false;
+            timerObj.Stop();
+            timerObj.Interval = zeit * 1000;
+            if ((pos[umrechner(x), 3, umrechner(z), 0] == false) && (pos[umrechner(x), 3, umrechner(z), 1] == false) && downset == false)
+            {
+                Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
+                downset = true;
+                Scene.Remove(marker);
+                marker = null;
+
+                for (int i = 0; i < 4; i++)
+                {
+                    if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
+                    {
+                        if (i != 0)
+                        {
+                            PHalter = new BoxObject(new Vector3(x, ((i - 1) * 9 + 7.6f), z), new Vector3(5f, 4f, 5f), 0f);
+                            PHalterMat.Transparency = 1f;
+                            PHalter.RenderMaterial = PHalterMat;
+                            Scene.Add(PHalter);
+                            break;
+                        }
+                        else
+                        {
+                            break;
+                        }
+
+                    }
+                }
+
+                currentState = States.Wait;
+            }
+        }
+        #region Rechnen - Vier Gewinnt :)
         int umrechner(int x)
         {
             switch (x)
@@ -393,7 +439,8 @@ namespace _4Balls
                 }
             }
         }
-
+#endregion
+        #region Nova functions
         public override void Initialize()
         {
             base.Initialize();
@@ -401,17 +448,15 @@ namespace _4Balls
             Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
             Scene.Physics.ForceUpdater.Gravity = new Vector3(0, -900.81f, 0);
             currentState = States.Start;
-//            Scene.ShowCollisionMeshes = true;
+            Scene.ShowCollisionMeshes = false;
             collidedHandler = new EventHandler<CollisionArgs>(BoxCollidedHandler);
 
             BEPUphysics.Settings.MotionSettings.DefaultPositionUpdateMode = BEPUphysics.PositionUpdating.PositionUpdateMode.Continuous;
             BEPUphysics.Settings.CollisionDetectionSettings.AllowedPenetration = 0.4f;
 //            BEPUphysics.Settings.CollisionResponseSettings.PenetrationRecoveryStiffness = 10f;
             BEPUphysics.Settings.CollisionDetectionSettings.DefaultMargin = 0.4f;
-            BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100f;
+            BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100000f;
             Scene.ShowTriangleCount = true;
-
-
 
             winkel = Math.PI / 4;
             winkelcam = 0;
@@ -427,7 +472,8 @@ namespace _4Balls
             {
                 case States.Start:
 
-                    
+                    timerObj.Interval = zeit * 1000;
+                    player = 0;
                     ground = new BoxObject(new Vector3(0, 0, 0), new Vector3(50f, 1f, 50f), 0f);
                     ground.RenderMaterial.Diffuse = new Microsoft.Xna.Framework.Vector4(1, 1, 1, 1);
                     ground.PhysicsMaterial.Bounciness = 0f;
@@ -450,6 +496,7 @@ namespace _4Balls
                     break;
 
                 case States.Boxeinfuegen:
+                    downset = false;
                     x = 5;
                     y = 50;
                     z = 5;
@@ -490,7 +537,21 @@ namespace _4Balls
 
                 case States.Bewegen:
                     //UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
-                    UI2DRenderer.WriteText(Vector2.Zero, winkel.ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+                    ourGameTimeObj = gameTime;
+                    if (!timerRunning)
+                    {
+                        timerObj.Start();
+                        timerRunning = true;
+                        timerObj.Elapsed += new System.Timers.ElapsedEventHandler(timerHandlerTemp);
+                        lastGameTime = gameTime.TotalGameTime.TotalSeconds;
+                    }
+                    else
+                    {
+                        UI2DRenderer.WriteText(Vector2.Zero, "Spieler: " + (player + 1), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Left, UI2DRenderer.VerticalAlignment.Bottom);
+                        UI2DRenderer.WriteText(Vector2.Zero, "Verbleibende Zeit: " +((int)(zeit - (gameTime.TotalGameTime.TotalSeconds - lastGameTime))).ToString() + " Sekunden", Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Right, UI2DRenderer.VerticalAlignment.Bottom);
+                            
+                    }
+
                     break;
 
                 case States.Wait:
@@ -514,7 +575,6 @@ namespace _4Balls
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 
         }
-
 
 
         void BoxCollidedHandler(object sender, CollisionArgs e)
@@ -564,17 +624,44 @@ namespace _4Balls
             }
             else
             {
-                switch (player)
+                int voll = 0;
+                for (int i = 0; i < 4; i++)
                 {
-                    case 0:
-                        player = 1;
-                        break;
+                    for (int k = 0; k < 4; k++)
+                    {
+                        for (int l = 0; l < 2; l++)
+                        {
+                            if (pos[i, 3, k, l] == true)
+                            {
+                                voll = voll + 1;
 
-                    case 1:
-                        player = 0;
-                        break;
+                            }
+                        }
+                                
+                    }
                 }
-                currentState = States.Boxeinfuegen;
+
+
+                if (voll != 16)
+                {
+                    switch (player)
+                    {
+                        case 0:
+                            player = 1;
+                            break;
+
+                        case 1:
+                            player = 0;
+                            break;
+                    }
+                    currentState = States.Boxeinfuegen;
+                }
+                else
+                {
+                    currentState = States.End;
+                }
+
+
             }
 
         }
@@ -586,20 +673,19 @@ namespace _4Balls
             switch (currentState)
             {
                 case States.Start:
+                    break;
                 case States.Boxeinfuegen:
-                    text = " einfuegen";
-                    color = Color.Yellow;
                     break;
                 case States.Bewegen:
                     break;
                 case States.Wait:
                     break;
                 case States.Gewinn:
-                    text = " Gewonnen! ";
-                    color = Color.Yellow;
+                    text = " Spieler " + (player + 1) + " hat gewonnen!";
+                    color = Color.Blue;
                     break;
                 case States.End:
-                    text = " Press Space to restart !";
+                    text = "Kein Spieler hat gewonnen!";
                     color = Color.Blue;
                     break;
             }
@@ -830,6 +916,10 @@ namespace _4Balls
                             }
                         }
 
+                        timerRunning = false;
+                        timerObj.Stop();
+                        timerObj.Interval = zeit * 1000;
+
                         currentState = States.Wait;
                     }
 
@@ -895,16 +985,30 @@ namespace _4Balls
                 case States.End:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
-  //                      Scene.RemoveAllSceneObjects();
-  //                      currentState = States.Start;
+                        Scene.RemoveAllSceneObjects();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            for (int j = 0; j < 4; j++)
+                            {
+                                for (int k = 0; k < 4; k++)
+                                {
+                                    for (int l = 0; l < 2; l++)
+                                    {
+                                        pos[i, j, k, l] = false;
+
+                                    }
+                                }
+                            }
+                        }
+                        markerint = false;
+                        currentState = States.Start;
+
                     }
                     break;
             }
             base.HandleInput(input);
         }
-
     }
 
-
-
+        #endregion
 }
