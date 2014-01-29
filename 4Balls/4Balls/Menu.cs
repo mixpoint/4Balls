@@ -16,8 +16,10 @@ namespace _4Balls
 {
     public class MainMenuScreen : MenuScreen
     {
-        
-        public MainMenuScreen() : base("4 Balls")
+        int hohe;
+        int breite;
+
+        public MainMenuScreen(int hohe1, int breite1) : base("4 Balls")
             {    
                 MenuEntry einfachEntry = new MenuEntry("Einfach");
                 MenuEntry mittelEntry = new MenuEntry("Mittel");
@@ -28,18 +30,21 @@ namespace _4Balls
                 MenuEntries.Add(einfachEntry);
                 MenuEntries.Add(mittelEntry);
                 MenuEntries.Add(schwerEntry);
+
+                hohe = hohe1;
+                breite = breite1;
             }
         void einfachSelected(object sender, PlayerIndexEventArgs e)
         {
-            LoadingScreen.Load(Core.ScreenManager, true, e.PlayerIndex, new Spiel(31));
+            LoadingScreen.Load(Core.ScreenManager, true, e.PlayerIndex, new Spiel(31, hohe, breite));
         }
         void mittelSelected(object sender, PlayerIndexEventArgs e)
         {
-            LoadingScreen.Load(Core.ScreenManager, true, e.PlayerIndex, new Spiel(16));
+            LoadingScreen.Load(Core.ScreenManager, true, e.PlayerIndex, new Spiel(16, hohe, breite));
         }
         void schwerSelected(object sender, PlayerIndexEventArgs e)
         {
-            LoadingScreen.Load(Core.ScreenManager, true, e.PlayerIndex, new Spiel(6));
+            LoadingScreen.Load(Core.ScreenManager, true, e.PlayerIndex, new Spiel(6, hohe, breite));
         }
     }
 }

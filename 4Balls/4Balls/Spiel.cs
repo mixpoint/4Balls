@@ -38,7 +38,6 @@ namespace _4Balls
         States currentState;
 //        List<BoxObject> boxen = new List<BoxObject>();
         bool timerRunning = false;
-        GameTime ourGameTimeObj;
         System.Timers.Timer timerObj = new System.Timers.Timer() { Interval = 1000, Enabled = true};
         BoxObject ground;
         int player;
@@ -46,6 +45,8 @@ namespace _4Balls
         int y;
         int z;
         int zeit;
+        int screenhohe;
+        int screenbreite;
         bool[,,,] pos = new bool[4,4,4,2];
         double winkel;
         double winkelcam;
@@ -58,9 +59,11 @@ namespace _4Balls
         RenderMaterial PHalterMat = new RenderMaterial();
         EventHandler<CollisionArgs> collidedHandler;
 
-        public Spiel(int spielzeit)
+        public Spiel(int spielzeit, int hohe, int breite)
         {
             zeit = spielzeit;
+            screenhohe = hohe;
+            screenbreite = breite;
         }
 
         void timerHandlerTemp(object source, ElapsedEventArgs e)
@@ -70,33 +73,55 @@ namespace _4Balls
             timerObj.Interval = zeit * 1000;
             if ((pos[umrechner(x), 3, umrechner(z), 0] == false) && (pos[umrechner(x), 3, umrechner(z), 1] == false) && downset == false)
             {
-                Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
-                downset = true;
-                Scene.Remove(marker);
-                marker = null;
-
-                for (int i = 0; i < 4; i++)
+                if (downset == false)
                 {
-                    if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
-                    {
-                        if (i != 0)
-                        {
-                            PHalter = new BoxObject(new Vector3(x, ((i - 1) * 9 + 7.6f), z), new Vector3(5f, 4f, 5f), 0f);
-                            PHalterMat.Transparency = 1f;
-                            PHalter.RenderMaterial = PHalterMat;
-                            Scene.Add(PHalter);
-                            break;
-                        }
-                        else
-                        {
-                            break;
-                        }
+                    Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
+                    downset = true;
+                    Scene.Remove(marker);
+                    marker = null;
 
+                    for (int i = 0; i < 4; i++)
+                    {
+                        if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
+                        {
+                            if (i != 0)
+                            {
+                                PHalter = new BoxObject(new Vector3(x, ((i - 1) * 9 + 7.6f), z), new Vector3(5f, 4f, 5f), 0f);
+                                PHalterMat.Transparency = 1f;
+                                PHalter.RenderMaterial = PHalterMat;
+                                Scene.Add(PHalter);
+                                break;
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                        }
                     }
+                    currentState = States.Wait;
+                }
+            } else
+            {
+                if (downset == false)
+                {
+                    downset = true;
+                    Scene.Remove(fallingBox);
+                    switch (player)
+                    {
+                        case 0:
+                            player = 1;
+                            break;
+
+                        case 1:
+                            player = 0;
+                            break;
+                    }
+                    currentState = States.Boxeinfuegen;
                 }
 
-                currentState = States.Wait;
             }
+
         }
         #region Rechnen - Vier Gewinnt :)
         int umrechner(int x)
@@ -537,7 +562,6 @@ namespace _4Balls
 
                 case States.Bewegen:
                     //UI2DRenderer.WriteText(Vector2.Zero, fallingBox.Physics.LinearVelocity.Length().ToString(), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
-                    ourGameTimeObj = gameTime;
                     if (!timerRunning)
                     {
                         timerObj.Start();
@@ -547,8 +571,8 @@ namespace _4Balls
                     }
                     else
                     {
-                        UI2DRenderer.WriteText(Vector2.Zero, "Spieler: " + (player + 1), Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Left, UI2DRenderer.VerticalAlignment.Bottom);
-                        UI2DRenderer.WriteText(Vector2.Zero, "Verbleibende Zeit: " +((int)(zeit - (gameTime.TotalGameTime.TotalSeconds - lastGameTime))).ToString() + " Sekunden", Color.Blue, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Right, UI2DRenderer.VerticalAlignment.Bottom);
+                        UI2DRenderer.WriteText(Vector2.Zero, "Spieler: " + (player + 1), Color.Blue, null, Vector2.One * (NOVA.Core.Graphics.PreferredBackBufferWidth / screenbreite), UI2DRenderer.HorizontalAlignment.Left, UI2DRenderer.VerticalAlignment.Bottom);
+                        UI2DRenderer.WriteText(Vector2.Zero, "Verbleibende Zeit: " + ((int)(zeit - (gameTime.TotalGameTime.TotalSeconds - lastGameTime))).ToString() + " Sekunden", Color.Blue, null, Vector2.One * (NOVA.Core.Graphics.PreferredBackBufferWidth / screenbreite), UI2DRenderer.HorizontalAlignment.Right, UI2DRenderer.VerticalAlignment.Bottom);
                             
                     }
 
@@ -689,12 +713,51 @@ namespace _4Balls
                     color = Color.Blue;
                     break;
             }
-            UI2DRenderer.WriteText(Vector2.Zero, text, color, null, Vector2.One, UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
+            UI2DRenderer.WriteText(Vector2.Zero, text, color, null, Vector2.One * (NOVA.Core.Graphics.PreferredBackBufferWidth / screenbreite), UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);
             base.Draw(gameTime);
         }
 
         public override void HandleInput(InputState input)
         {
+           if (input.WasKeyPressed(Keys.A, PlayerIndex.One))
+                    {
+                         //NOVA.Core.Graphics.ToggleFullScreen();
+                        //NOVA.Core.Graphics.IsFullScreen = ...;
+                        //NOVA.Core.Graphics.ApplyChanges();
+                        if (NOVA.Core.Graphics.IsFullScreen == true)
+                        {
+                            NOVA.Core.Graphics.PreferredBackBufferWidth = screenbreite;
+                            NOVA.Core.Graphics.PreferredBackBufferHeight = screenhohe;
+                            NOVA.Core.Graphics.ToggleFullScreen();
+                        }
+                        else
+                        {
+                            NOVA.Core.Graphics.PreferredBackBufferHeight = NOVA.Core.Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height;
+                            NOVA.Core.Graphics.PreferredBackBufferWidth = NOVA.Core.Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width;
+                            NOVA.Core.Graphics.ToggleFullScreen();
+                        }
+
+                    }
+
+           if (input.WasKeyPressed(Keys.K, PlayerIndex.One))
+           {
+
+               Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
+               winkel -= 0.1;
+               winkelcam -= 0.1;
+               Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
+           }
+
+           if (input.WasKeyPressed(Keys.L, PlayerIndex.One))
+           {
+
+               Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
+               winkel += 0.1;
+               winkelcam += 0.1;
+               Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
+           }
+
+
             switch (currentState)
             {
                 case States.Start:
@@ -923,36 +986,6 @@ namespace _4Balls
                         currentState = States.Wait;
                     }
 
-                    if (input.WasKeyPressed(Keys.K, PlayerIndex.One))
-                    {
-
-                        Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
-                        winkel -= 0.1;
-                        winkelcam -= 0.1;
-                        Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
-                        //Scene.Camera.Target = new Vector3(0, 20, 0);
-                        //Scene.Camera.Position = new Vector3(70*(float)Math.Cos(winkel), 80, 70*(float)Math.Sin(winkel));
-                        //Scene.Camera.Target = new Vector3(0, 20, 0);
-                        //Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
-                        //Scene.ShowGrid = true;
-                        //Scene.Camera.Target = new Vector3(0, 20, 0);
-                    }
-
-                    if (input.WasKeyPressed(Keys.L, PlayerIndex.One))
-                    {
-
-                        Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
-                        winkel += 0.1;
-                        winkelcam += 0.1;
-                        Scene.Camera = new CameraObject(new Vector3(100 * (float)Math.Cos(winkelcam), 80, 100 * (float)Math.Sin(winkelcam)), new Vector3(0, 20, 0));
-                        //Scene.Camera.Target = new Vector3(0, 20, 0);
-                        //Scene.Camera.Position = new Vector3(70*(float)Math.Cos(winkel), 80, 70*(float)Math.Sin(winkel));
-                        //Scene.Camera.Target = new Vector3(0, 20, 0);
-                        //Console.WriteLine(Scene.Camera.ViewMatrix.ToString());
-                        //Scene.ShowGrid = true;
-                        //Scene.Camera.Target = new Vector3(0, 20, 0);
-                    }
-
 
                     break;
 
@@ -962,7 +995,7 @@ namespace _4Balls
                 case States.Gewinn:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
-                        Scene.RemoveAllSceneObjects();
+                        Scene.Clear();
                         for (int i = 0; i < 4; i++)
                         {
                             for (int j = 0; j < 4; j++)
@@ -985,7 +1018,7 @@ namespace _4Balls
                 case States.End:
                     if (input.WasKeyPressed(Keys.Space, PlayerIndex.One))
                     {
-                        Scene.RemoveAllSceneObjects();
+                        Scene.Clear();
                         for (int i = 0; i < 4; i++)
                         {
                             for (int j = 0; j < 4; j++)

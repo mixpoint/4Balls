@@ -40,7 +40,12 @@ namespace _4Balls
         {
             // TODO: Add your initialization logic here
             m_nova = new NOVAEngine(this, graphics, Content);
-            LoadingScreen.Load(m_nova.ScreenManager, true, PlayerIndex.One, new MainMenuScreen());
+
+/*            NOVA.Core.Graphics.PreferredBackBufferHeight = NOVA.Core.Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height;
+            NOVA.Core.Graphics.PreferredBackBufferWidth = NOVA.Core.Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width;
+            NOVA.Core.Graphics.ToggleFullScreen(); */
+
+            LoadingScreen.Load(m_nova.ScreenManager, true, PlayerIndex.One, new MainMenuScreen(NOVA.Core.Graphics.PreferredBackBufferHeight, NOVA.Core.Graphics.PreferredBackBufferWidth));
             base.Initialize();
         }
 
