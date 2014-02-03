@@ -16,7 +16,9 @@ using BEPUphysics.Collidables.Events;
 using BEPUphysics.Collidables.MobileCollidables;
 using BEPUphysics.NarrowPhaseSystems.Pairs;
 using NOVA.Graphics;
+using NOVA.Sound;
 using System.Timers;
+using Microsoft.Xna.Framework.Audio;
 
 
 // Master
@@ -52,6 +54,7 @@ namespace _4Balls
         double winkelcam;
         bool markerint;
         bool downset;
+        bool soundisplay;
         BoxObject fallingBox;
         BoxObject marker;
         RenderMaterial MarkerRenMat = new RenderMaterial();
@@ -460,6 +463,19 @@ namespace _4Balls
                     }
                     marker.RenderMaterial = MarkerRenMat;
                     Scene.Add(marker);
+
+
+                    if (soundisplay == false)
+                    {
+                        soundisplay = false;
+                        SoundEffect sound = Scene.Game.Content.Load<SoundEffect>("move");
+                        SoundObject downSound = new SoundObject(new Vector3(x, ((i - 1) * 9f + 5.6f), z), sound, false);
+                        Scene.Add(sound);
+                        sound.Play();
+                    }
+
+  
+
                     break;
                 }
             }
@@ -482,6 +498,7 @@ namespace _4Balls
             BEPUphysics.Settings.CollisionDetectionSettings.DefaultMargin = 0.4f;
             BEPUphysics.Settings.CollisionResponseSettings.MaximumPenetrationCorrectionSpeed = 100000f;
 //            Scene.ShowTriangleCount = true;
+            soundisplay = true;
 
             winkel = Math.PI / 4;
             winkelcam = 0;
@@ -515,12 +532,13 @@ namespace _4Balls
                         }
                     }
 
-                    
+
                     
                     currentState = States.Boxeinfuegen;
                     break;
 
                 case States.Boxeinfuegen:
+
                     downset = false;
                     x = 5;
                     y = 50;
@@ -554,6 +572,8 @@ namespace _4Balls
                     MarkerRenMat.Diffuse = Color.Blue.ToVector4();
 
                     markerupate();
+
+                    soundisplay = false;
 
                     currentState = States.Bewegen;
 
@@ -589,7 +609,14 @@ namespace _4Balls
                     break;
 
                 case States.Gewinn:
-
+                    if (soundisplay == false)
+                    {
+                        soundisplay = true;
+                        SoundEffect sound = Scene.Game.Content.Load<SoundEffect>("win");
+                        SoundObject winSound = new SoundObject(new Vector3(0, 10, 0), sound, false);
+                        Scene.Add(sound);
+                        sound.Play();
+                    }
                     break;
 
                 case States.End:
@@ -608,22 +635,23 @@ namespace _4Balls
             BoxObject box = sender as BoxObject;
             box.Collided -= collidedHandler;            
             box.Physics.LinearVelocity = Vector3.Zero;
-            //box.Physics.IsAffectedByGravity = false;
-            //box.Mass = 0f;
-
            
-/*            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 if ((pos[umrechner(x), i, umrechner(z), 0] == false) && (pos[umrechner(x), i, umrechner(z), 1] == false))
                 {
-                    PHalter = new BoxObject(new Vector3(x, (i * 9 + 7.6f), z), new Vector3(5f, 4f, 5f), 0f);
-                    PHalterMat.Transparency = 1f;
-                    PHalter.RenderMaterial = PHalterMat;
-                    Scene.Add(PHalter);
+                    if (soundisplay == false)
+                    {
+                        soundisplay = true;
+                        SoundEffect sound = Scene.Game.Content.Load<SoundEffect>("down");
+                        SoundObject downSound = new SoundObject(new Vector3(x, ((i - 1) * 9f + 5.6f), z), sound, false);
+                        Scene.Add(sound);
+                        sound.Play();
+                    }
                     break;
                 }
             }
-            */
+            
 
             x = umrechner(x);
             z = umrechner(z);
@@ -645,6 +673,7 @@ namespace _4Balls
             if (win(3) == true)
             {
                 currentState = States.Gewinn;
+                soundisplay = false;
             }
             else
             {
@@ -958,6 +987,7 @@ namespace _4Balls
                         Console.WriteLine(String.Format("{0}", fallingBox.Physics.LinearVelocity.Length().ToString()));
                         Scene.Remove(marker);
                         marker = null;
+                        soundisplay = false;
 
                         for (int i = 0; i < 4; i++)
                         {
