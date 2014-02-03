@@ -591,8 +591,8 @@ namespace _4Balls
                     }
                     else
                     {
-                        UI2DRenderer.WriteText(Vector2.Zero, "Spieler: " + (player + 1), Color.Blue, null, Vector2.One * (NOVA.Core.Graphics.PreferredBackBufferWidth / screenbreite), UI2DRenderer.HorizontalAlignment.Left, UI2DRenderer.VerticalAlignment.Bottom);
-                        UI2DRenderer.WriteText(Vector2.Zero, "Verbleibende Zeit: " + ((int)(zeit - (gameTime.TotalGameTime.TotalSeconds - lastGameTime))).ToString() + " Sekunden", Color.Blue, null, Vector2.One * (NOVA.Core.Graphics.PreferredBackBufferWidth / screenbreite), UI2DRenderer.HorizontalAlignment.Right, UI2DRenderer.VerticalAlignment.Bottom);
+                        UI2DRenderer.WriteText(Vector2.Zero, "Spieler: " + (player + 1), Color.Red, null, Vector2.One * (NOVA.Core.Graphics.PreferredBackBufferWidth / screenbreite), UI2DRenderer.HorizontalAlignment.Left, UI2DRenderer.VerticalAlignment.Bottom);
+                        UI2DRenderer.WriteText(Vector2.Zero, "Verbleibende Zeit: " + ((int)(zeit - (gameTime.TotalGameTime.TotalSeconds - lastGameTime))).ToString() + " Sekunden", Color.Red, null, Vector2.One * (NOVA.Core.Graphics.PreferredBackBufferWidth / screenbreite), UI2DRenderer.HorizontalAlignment.Right, UI2DRenderer.VerticalAlignment.Bottom);
                             
                     }
 
@@ -735,11 +735,11 @@ namespace _4Balls
                     break;
                 case States.Gewinn:
                     text = " Spieler " + (player + 1) + " hat gewonnen!";
-                    color = Color.Blue;
+                    color = Color.Red;
                     break;
                 case States.End:
                     text = "Kein Spieler hat gewonnen!";
-                    color = Color.Blue;
+                    color = Color.Red;
                     break;
             }
             UI2DRenderer.WriteText(Vector2.Zero, text, color, null, Vector2.One * (NOVA.Core.Graphics.PreferredBackBufferWidth / screenbreite), UI2DRenderer.HorizontalAlignment.Center, UI2DRenderer.VerticalAlignment.Bottom);

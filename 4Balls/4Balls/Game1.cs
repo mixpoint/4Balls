@@ -46,6 +46,9 @@ namespace _4Balls
             NOVA.Core.Graphics.ToggleFullScreen(); */
 
             LoadingScreen.Load(m_nova.ScreenManager, true, PlayerIndex.One, new MainMenuScreen(NOVA.Core.Graphics.PreferredBackBufferHeight, NOVA.Core.Graphics.PreferredBackBufferWidth));
+            NOVA.Core.Graphics.PreferredBackBufferHeight = NOVA.Core.Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height;
+            NOVA.Core.Graphics.PreferredBackBufferWidth = NOVA.Core.Graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width;
+            NOVA.Core.Graphics.ToggleFullScreen();
             base.Initialize();
         }
 
